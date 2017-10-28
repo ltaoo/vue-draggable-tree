@@ -49,11 +49,11 @@ const TreeNode = Vue.component('TreeNode', {
         const props = this.props || {};
         let newchildren = null;
         const children = this.children;
-        console.log(typeof h, 'in tree node');
         if (children) {
+            const vchildren = loop(children, h, TreeNode);
             newchildren = (
                 <ul>
-                    {this.root.renderTreeNode(loop(children, h, TreeNode))}
+                    {vchildren.map(vnode => this.root.renderTreeNode(vnode))}
                 </ul>
             );
         }
