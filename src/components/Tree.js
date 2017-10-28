@@ -1,55 +1,45 @@
 import Vue from 'vue';
 
 import TreeNode from '@/components/TreeNode';
+import {
+    loop,
+} from '@/utils';
 
 Vue.component('Tree', {
     props: ['data'],
-    components: {
-        TreeNode,
-    },
     methods: {
-        renderTreeNode(child, index, level = 0) {
-            const { state, props } = this;
+        /**
+         * 渲染单个节点，更确切的说法应该是处理节点，视情况添加 children
+         * @param {VNode} child
+         * @param {*} index
+         * @param {*} level
+         */
+        renderTreeNode(child, index = 0, level = 0) {
             const pos = `${level}-${index}`;
-            const key = child.key || pos;
+            const key = child.rckey || pos;
 
             const childProps = {
-                root: this,
-                eventKey: key,
-                pos,
-                loadData: props.loadData,
-                prefixCls: props.prefixCls,
-                showIcon: props.showIcon,
-                draggable: props.draggable,
-                dragOver: state.dragOverNodeKey === key && state.dropPosition === 0,
-                dragOverGapTop: state.dragOverNodeKey === key && state.dropPosition === -1,
-                dragOverGapBottom: state.dragOverNodeKey === key && state.dropPosition === 1,
-                expanded: state.expandedKeys.indexOf(key) !== -1,
-                selected: state.selectedKeys.indexOf(key) !== -1,
-                openTransitionName: this.getOpenTransitionName(),
-                openAnimation: props.openAnimation,
-                filterTreeNode: this.filterTreeNode,
+                rckey: key,
+                title: key,
+                props: child.data,
+                vchildren: child.vChildren,
+                ...child.data,
             };
-            if (props.checkable) {
-                childProps.checkable = props.checkable;
-                childProps.checked = state.checkedKeys.indexOf(key) !== -1;
-                childProps.halfChecked = state.halfCheckedKeys.indexOf(key) !== -1;
-            }
-            return <TreeNode {...childProps} />;
+            return <TreeNode root={this} {...childProps} />;
         },
     },
-    render() {
-        const loop = data => data.map((item) => {
-            if (item.children && item.children.length) {
-                return <TreeNode key={item.key} title={item.key}>{loop(item.children)}</TreeNode>;
-            }
-            return <TreeNode key={item.key} title={item.key} />;
-        });
+    render(h) {
+        // 传过来的 children，这个时候还是 VNode
+        const vChildren = loop(this.data, h, TreeNode);
+        /**
+         * 1、一定是先渲染最顶层的节点
+         * 2、如果节点还有子节点，交给子节点自己处理
+         */
         return (<ul
             role="tree-node"
             unselectable="on"
         >
-            {loop(this.data)}
+            {vChildren.map(child => this.renderTreeNode(child))}
         </ul>);
     },
 });
