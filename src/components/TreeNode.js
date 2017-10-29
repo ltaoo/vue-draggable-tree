@@ -14,6 +14,7 @@ const TreeNode = Vue.component('TreeNode', {
         rckey: {
             type: String,
         },
+        // 父节点
         root: {
             type: Object,
         },
@@ -45,25 +46,36 @@ const TreeNode = Vue.component('TreeNode', {
         },
     },
     methods: {
+        /**
+         * 渲染子节点
+         */
         renderChildren() {
-            // children 为 Array
+            let newchildren = null;
+            const vChildren = this.vChildren;
+            if (vChildren) {
+                newchildren = (
+                    <ul>
+                        {vChildren.map((vnode, i) => this.root.renderTreeNode(vnode, i))}
+                    </ul>
+                );
+            }
+            return newchildren;
         },
         onSelect() {
-            this.props.root.onSelect(this);
+            this.root.onSelect(this);
         },
         onMouseEnter(e) {
             e.preventDefault();
-            this.props.root.onMouseEnter(e, this);
+            this.root.onMouseEnter(e, this);
         },
         onMouseLeave(e) {
             e.preventDefault();
-            this.props.root.onMouseLeave(e, this);
+            this.root.onMouseLeave(e, this);
         },
         onContextMenu(e) {
-            this.props.root.onContextMenu(e, this);
+            this.root.onContextMenu(e, this);
         },
         onDragStart(e) {
-            console.log('tree node drag start');
             e.stopPropagation();
             this.dragNodeHighlight = true;
             this.root.onDragStart(e, this);
@@ -90,30 +102,18 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.onDragLeave(e, this);
         },
         onDrop(e) {
-            console.log('ondrop in treeNode');
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            console.log('before call root ondrop', this);
             this.root.onDrop(e, this);
         },
         onDragEnd(e) {
-            console.log('ondragend in treeNode');
             e.stopPropagation();
             this.dragNodeHighlight = false;
             this.root.onDragEnd(e, this);
         },
     },
     render(h) {
-        let newchildren = null;
-        const vChildren = this.vChildren;
-        if (vChildren) {
-            newchildren = (
-                <ul>
-                    {vChildren.map((vnode, i) => this.root.renderTreeNode(vnode, i))}
-                </ul>
-            );
-        }
         // 渲染可拖拽部分，标题
         const selectHandle = () => {
             const props = {
@@ -143,7 +143,6 @@ const TreeNode = Vue.component('TreeNode', {
                     domProps.class += ' draggable';
                     domProps.draggable = true;
                     domProps['aria-grabbed'] = true;
-                    domProps.onDragStart = this.onDragStart;
                 }
             }
             return h('span', {
@@ -189,14 +188,12 @@ const TreeNode = Vue.component('TreeNode', {
           dragOverCls = 'drag-over-gap-bottom';
         }
 
-        console.log('li tag class name', this.dragOverGapTop, this.dragOverGapBottom, classNames(dragOverCls));
-
         return (
             <li
-                class={dragOverCls}
+                class={classNames(dragOverCls)}
             >
                 {selectHandle()}
-                {newchildren}
+                {this.renderChildren()}
             </li>
         );
     },

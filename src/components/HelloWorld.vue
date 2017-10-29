@@ -66,13 +66,24 @@
                 console.log('enter', info);
                 this.expandedKeys = info.expandedKeys;
             },
+            /**
+             * 结束拖拽后此时的信息，包括目标节点、拖拽节点、位置
+             */
             onDrop(info) {
                 console.log('on drop in main', info);
+                // 目标节点
                 const dropKey = info.node.eventKey;
+                // 正在拖拽的节点
                 const dragKey = info.dragNode.eventKey;
                 const dropPos = info.node.pos.split('-');
                 const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
-                // // const dragNodesKeys = info.dragNodesKeys;
+                // const dragNodesKeys = info.dragNodesKeys;
+                /**
+                 * 遍历 data，节点对应的对象
+                 * @param {} data
+                 * @param {} key
+                 * @param {Function} callback
+                 */
                 const loop = (data, key, callback) => {
                     data.forEach((item, index, arr) => {
                         if (item.key === key) {
@@ -84,19 +95,24 @@
                         return false;
                     });
                 };
+                // 浅拷贝
                 const data = [...this.gData];
                 let dragObj;
                 loop(data, dragKey, (item, index, arr) => {
+                    // 找到后，删掉该节点
                     arr.splice(index, 1);
                     dragObj = item;
                 });
+                // 然后处理应该放到哪里
                 if (info.dropToGap) {
                     let ar;
                     let i;
+                    // 寻找放置的那个节点对应的数组，保存为 ar
                     loop(data, dropKey, (item, index, arr) => {
                         ar = arr;
                         i = index;
                     });
+                    // 如果是放到上边缘
                     if (dropPosition === -1) {
                         ar.splice(i, 0, dragObj);
                     } else {
@@ -110,6 +126,7 @@
                         item.children.push(dragObj);
                     });
                 }
+                // 改变数据，让 vue 自己去更新视图
                 this.gData = data;
             },
             onExpand(expandedKeys, ...arg) {

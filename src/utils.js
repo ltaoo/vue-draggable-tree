@@ -23,25 +23,34 @@ export const loop = (data, h, component, level = '0') =>
         }, []);
     });
 
+/**
+ *
+ * @param {[VueComponent]} treeNodes
+ * @param {Function} callback
+ */
 export function traverseTreeNodes(treeNodes = [], callback) {
     const traverse = (subTreeNodes, level, parentsChildrenPos, parentPos) => {
         let newSubTreeNodes = subTreeNodes;
         if (subTreeNodes && subTreeNodes.length) {
             newSubTreeNodes = subTreeNodes.filter(item => !!item);
         }
+
+        // 真正开始遍历传进来的 VueComponents
         newSubTreeNodes.forEach((item, index) => {
-            const pos = `${level}-${index}`;
+            // const pos = `${level}-${index}`;
+            const pos = item.pos;
             parentsChildrenPos.push(pos); // Note: side effect
 
             const childrenPos = [];
-            if (item.vChildren && item.type && item.type.isTreeNode) {
-                traverse(item.vChildren, pos, childrenPos, pos);
+            // if (item.$children && item.type && item.type.isTreeNode) {
+            if (item.$children) {
+                traverse(item.$children, pos, childrenPos, pos);
             }
             callback(
                 item,
                 index,
                 pos,
-                item.key || pos,
+                item.rckey || pos,
                 childrenPos,
                 parentPos,
             );
