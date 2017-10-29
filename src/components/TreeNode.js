@@ -23,12 +23,20 @@ const TreeNode = Vue.component('TreeNode', {
         pos: {
             type: String,
         },
+        eventKey: {
+            type: String,
+        },
     },
     data() {
         return {
             dataLoading: false,
             dragNodeHighlight: false,
         };
+    },
+    computed: {
+        handleSelect() {
+            return this.$refs.handleSelect;
+        },
     },
     methods: {
         renderChildren() {
@@ -64,31 +72,30 @@ const TreeNode = Vue.component('TreeNode', {
         onDragEnter(e) {
             e.preventDefault();
             e.stopPropagation();
-            this.props.root.onDragEnter(e, this);
+            this.root.onDragEnter(e, this);
         },
         onDragOver(e) {
             e.preventDefault();
             e.stopPropagation();
-            this.props.root.onDragOver(e, this);
+            this.root.onDragOver(e, this);
         },
         onDragLeave(e) {
             e.stopPropagation();
-            this.props.root.onDragLeave(e, this);
+            this.root.onDragLeave(e, this);
         },
         onDrop(e) {
+            console.log('ondrop in treeNode');
             e.preventDefault();
             e.stopPropagation();
-            this.setState({
-                dragNodeHighlight: false,
-            });
-            this.props.root.onDrop(e, this);
+            this.dragNodeHighlight = false;
+            console.log('before call root ondrop', this);
+            this.root.onDrop(e, this);
         },
         onDragEnd(e) {
+            console.log('ondragend in treeNode');
             e.stopPropagation();
-            this.setState({
-                dragNodeHighlight: false,
-            });
-            this.props.root.onDragEnd(e, this);
+            this.dragNodeHighlight = false;
+            this.root.onDragEnd(e, this);
         },
     },
     render(h) {
@@ -134,6 +141,7 @@ const TreeNode = Vue.component('TreeNode', {
                 }
             }
             return h('span', {
+                ref: 'selectHandle',
                 attrs: {
                     draggable: true,
                     ...domProps,
@@ -145,6 +153,18 @@ const TreeNode = Vue.component('TreeNode', {
                 on: {
                     dragstart: (e) => {
                         this.onDragStart(e);
+                    },
+                    dragenter: (e) => {
+                        this.onDragEnter(e);
+                    },
+                    drop: (e) => {
+                        this.onDrop(e);
+                    },
+                    dragend: (e) => {
+                        this.onDragEnd(e);
+                    },
+                    dragover: (e) => {
+                        this.onDragOver(e);
                     },
                 },
             }, [title]);

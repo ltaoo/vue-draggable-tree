@@ -53,3 +53,27 @@ export function traverseTreeNodes(treeNodes = [], callback) {
 export function isInclude(smallArray, bigArray) {
     return smallArray.every((item, index) => item === bigArray[index]);
 }
+
+/**
+ * 获取位置信息
+ * @param {*} ele
+ */
+export function getOffset(ele) {
+    if (!ele.getClientRects().length) {
+        return { top: 0, left: 0 };
+    }
+
+    const rect = ele.getBoundingClientRect();
+    if (rect.width || rect.height) {
+        const doc = ele.ownerDocument;
+        const win = doc.defaultView;
+        const docElem = doc.documentElement;
+
+        return {
+            top: (rect.top + win.pageYOffset) - docElem.clientTop,
+            left: (rect.left + win.pageXOffset) - docElem.clientLeft,
+        };
+    }
+
+    return rect;
+}

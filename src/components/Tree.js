@@ -5,6 +5,7 @@ import {
     loop,
     traverseTreeNodes,
     isInclude,
+    getOffset,
 } from '@/utils';
 
 Vue.component('Tree', {
@@ -14,12 +15,12 @@ Vue.component('Tree', {
         },
         props: {
             type: Object,
-            default() {
-                return {
-                    onDragStart() {},
-                };
-            },
         },
+    },
+    data() {
+        return {
+            dragNodesKeys: '',
+        };
     },
     methods: {
         /**
@@ -46,6 +47,7 @@ Vue.component('Tree', {
                 props={child.data}
                 vChildren={vChildren}
                 root={this}
+                eventKey={key}
             />);
         },
         /**
@@ -57,7 +59,7 @@ Vue.component('Tree', {
             const dragNodesKeys = [];
             // 拿到位置信息
             const treeNodePosArr = treeNode.pos.split('-');
-            traverseTreeNodes(treeNode.children, (item, index, pos, key) => {
+            traverseTreeNodes(treeNode.vChildren, (item, index, pos, key) => {
                 const childPosArr = pos.split('-');
                 if (
                     (treeNode.pos === pos ||
@@ -87,21 +89,20 @@ Vue.component('Tree', {
             });
         },
         onDragEnter(e, treeNode) {
+            if (e.target.className === 'c-title') {
+                e.target.style.background = 'purple';
+            }
+            // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
             if (
-                this.dragNode.props.eventKey === treeNode.props.eventKey &&
+                this.dragNode.eventKey === treeNode.eventKey &&
                 dropPosition === 0
             ) {
-                this.setState({
-                    dragOverNodeKey: '',
-                    dropPosition: null,
-                });
-                return;
+                this.dragOverNodeKey = '';
+                this.dropPosition = null;
             }
-            this.setState({
-                dragOverNodeKey: treeNode.props.eventKey,
-                dropPosition,
-            });
+            this.dragOverNodeKey = treeNode.eventKey;
+            this.dropPosition = dropPosition;
 
             if (!this.delayedDragEnterLogic) {
                 this.delayedDragEnterLogic = {};
@@ -109,16 +110,16 @@ Vue.component('Tree', {
             Object.keys(this.delayedDragEnterLogic).forEach((key) => {
                 clearTimeout(this.delayedDragEnterLogic[key]);
             });
-            this.delayedDragEnterLogic[treeNode.props.pos] = setTimeout(() => {
-                const expandedKeys = this.getExpandedKeys(treeNode, true);
-                if (expandedKeys) {
-                    this.setState({ expandedKeys });
-                }
+            this.delayedDragEnterLogic[treeNode.pos] = setTimeout(() => {
+                // const expandedKeys = this.getExpandedKeys(treeNode, true);
+                // if (expandedKeys) {
+                //     this.setState({ expandedKeys });
+                // }
                 this.props.onDragEnter({
                     event: e,
                     node: treeNode,
-                    expandedKeys: (expandedKeys && [...expandedKeys])
-                        || [...this.state.expandedKeys],
+                    // expandedKeys: (expandedKeys && [...expandedKeys])
+                        // || [...this.state.expandedKeys],
                 });
             }, 400);
         },
@@ -128,36 +129,57 @@ Vue.component('Tree', {
         onDragLeave(e, treeNode) {
             this.props.onDragLeave({ event: e, node: treeNode });
         },
+        /**
+         * 拖动后放下
+         * @param {*} e
+         * @param {*} treeNode
+         */
         onDrop(e, treeNode) {
-            const { state } = this;
-            const eventKey = treeNode.props.eventKey;
-            this.setState({
-                dragOverNodeKey: '',
-                dropNodeKey: eventKey,
-            });
-            if (state.dragNodesKeys.indexOf(eventKey) > -1) {
+            console.log('on drop in tree', treeNode);
+            if (!treeNode) {
+                return;
+            }
+            const eventKey = treeNode.eventKey;
+
+            this.dragOverNodeKey = '';
+            this.dropNodeKey = eventKey;
+
+            if (this.dragNodesKeys.indexOf(eventKey) > -1) {
                 // warning(false, 'Can not drop to dragNode(include it\'s children node)');
                 return;
             }
 
-            const posArr = treeNode.props.pos.split('-');
+            const posArr = treeNode.pos.split('-');
             const res = {
                 event: e,
                 node: treeNode,
                 dragNode: this.dragNode,
-                dragNodesKeys: [...state.dragNodesKeys],
-                dropPosition: state.dropPosition + Number(posArr[posArr.length - 1]),
+                dragNodesKeys: [...this.dragNodesKeys],
+                dropPosition: this.dropPosition + Number(posArr[posArr.length - 1]),
             };
-            if (state.dropPosition !== 0) {
+            if (this.dropPosition !== 0) {
                 res.dropToGap = true;
             }
             this.props.onDrop(res);
         },
         onDragEnd(e, treeNode) {
-            this.setState({
-                dragOverNodeKey: '',
-            });
+            this.dragOverNodeKey = '';
             this.props.onDragEnd({ event: e, node: treeNode });
+        },
+        calcDropPosition(e, treeNode) {
+            console.log(treeNode);
+            const selectHandle = treeNode.$refs.selectHandle;
+            const offsetTop = getOffset(selectHandle).top;
+            const offsetHeight = selectHandle.offsetHeight;
+            const pageY = e.pageY;
+            const gapHeight = 2; // TODO: remove hard code
+            if (pageY > (offsetTop + offsetHeight) - gapHeight) {
+                return 1;
+            }
+            if (pageY < offsetTop + gapHeight) {
+                return -1;
+            }
+            return 0;
         },
     },
     render(h) {
