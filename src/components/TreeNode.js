@@ -162,14 +162,14 @@ const TreeNode = Vue.component('TreeNode', {
                     dragenter: (e) => {
                         this.onDragEnter(e);
                     },
+                    dragover: (e) => {
+                        this.onDragEnter(e);
+                    },
                     drop: (e) => {
                         this.onDrop(e);
                     },
                     dragend: (e) => {
                         this.onDragEnd(e);
-                    },
-                    dragover: (e) => {
-                        this.onDragOver(e);
                     },
                 },
             }, [title]);
