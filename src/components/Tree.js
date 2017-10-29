@@ -1,5 +1,4 @@
 import Vue from 'vue';
-
 import TreeNode from '@/components/TreeNode';
 import {
     loop,
@@ -7,6 +6,8 @@ import {
     isInclude,
     getOffset,
 } from '@/utils';
+
+import './style.css';
 
 Vue.component('Tree', {
     props: {
@@ -20,6 +21,8 @@ Vue.component('Tree', {
     data() {
         return {
             dragNodesKeys: '',
+            dragOverNodeKey: '',
+            dropNodeKey: '',
         };
     },
     methods: {
@@ -40,6 +43,9 @@ Vue.component('Tree', {
             const pos = `${level}-${index}`;
             const key = rckey || pos;
 
+            const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
+            const dragOverGapBottom = this.dragOverNodeKey === key && this.dropPosition === 1;
+
             return (<TreeNode
                 rckey={key}
                 title={key}
@@ -48,6 +54,8 @@ Vue.component('Tree', {
                 vChildren={vChildren}
                 root={this}
                 eventKey={key}
+                dragOverGapTop={dragOverGapTop}
+                dragOverGapBottom={dragOverGapBottom}
             />);
         },
         /**
@@ -89,9 +97,6 @@ Vue.component('Tree', {
             });
         },
         onDragEnter(e, treeNode) {
-            if (e.target.className === 'c-title') {
-                e.target.style.background = 'purple';
-            }
             // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
             if (

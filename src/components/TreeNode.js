@@ -26,6 +26,12 @@ const TreeNode = Vue.component('TreeNode', {
         eventKey: {
             type: String,
         },
+        dragOverGapTop: {
+            type: Boolean,
+        },
+        dragOverGapBottom: {
+            type: Boolean,
+        },
     },
     data() {
         return {
@@ -115,7 +121,7 @@ const TreeNode = Vue.component('TreeNode', {
             };
             const content = this.title;
             const prefixCls = 'c';
-            const title = <span className={`${prefixCls}-title`}>{content}</span>;
+            const title = <span class={`${prefixCls}-title`}>{content}</span>;
             const wrap = `${prefixCls}-node-content-wrapper`;
             const domProps = {
                 className: `${wrap} ${wrap}-normal`,
@@ -134,7 +140,7 @@ const TreeNode = Vue.component('TreeNode', {
                     }
                 };
                 if (props.draggable) {
-                    domProps.className += ' draggable';
+                    domProps.class += ' draggable';
                     domProps.draggable = true;
                     domProps['aria-grabbed'] = true;
                     domProps.onDragStart = this.onDragStart;
@@ -169,10 +175,25 @@ const TreeNode = Vue.component('TreeNode', {
                 },
             }, [title]);
         };
+        // 当前位置
+        // const prefixCls = 'c';
+        // let disabledCls = '';
+        let dragOverCls = '';
+        if (this.disabled) {
+        //   disabledCls = `${prefixCls}-treenode-disabled`;
+        } else if (this.dragOver) {
+          dragOverCls = 'drag-over';
+        } else if (this.dragOverGapTop) {
+          dragOverCls = 'drag-over-gap-top';
+        } else if (this.dragOverGapBottom) {
+          dragOverCls = 'drag-over-gap-bottom';
+        }
+
+        console.log('li tag class name', this.dragOverGapTop, this.dragOverGapBottom, classNames(dragOverCls));
 
         return (
             <li
-                className={classNames('')}
+                class={dragOverCls}
             >
                 {selectHandle()}
                 {newchildren}

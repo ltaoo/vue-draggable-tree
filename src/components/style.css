@@ -1,0 +1,24 @@
+li {
+    margin: 4px;
+}
+.c-title {
+    display: inline-block;
+    min-width: 80px;
+    border-radius: 5px;
+    padding: 4px 6px;
+    color: #495060;
+    cursor: pointer;
+}
+.c-title:hover {
+    background: #5cadff;
+}
+.c-node-selected {
+    background: #2d8cf0;
+}
+.drag-over-gap-top {
+    border-top: 4px solid #2b85e4;
+}
+.drag-over-gap-bottom {
+    border-bottom: 4px solid #2b85e4;
+}
+
