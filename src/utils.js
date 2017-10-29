@@ -34,8 +34,8 @@ export function traverseTreeNodes(treeNodes = [], callback) {
             parentsChildrenPos.push(pos); // Note: side effect
 
             const childrenPos = [];
-            if (item.props.children && item.type && item.type.isTreeNode) {
-                traverse(item.props.children, pos, childrenPos, pos);
+            if (item.vChildren && item.type && item.type.isTreeNode) {
+                traverse(item.vChildren, pos, childrenPos, pos);
             }
             callback(
                 item,
