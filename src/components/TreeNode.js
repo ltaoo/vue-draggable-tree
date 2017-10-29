@@ -1,8 +1,5 @@
 import Vue from 'vue';
 import classNames from 'classnames';
-import {
-    loop,
-} from '@/utils';
 
 const defaultTitle = '---';
 
@@ -20,8 +17,11 @@ const TreeNode = Vue.component('TreeNode', {
         root: {
             type: Object,
         },
-        vchildren: {
+        vChildren: {
             type: Array,
+        },
+        pos: {
+            type: String,
         },
     },
     data() {
@@ -30,12 +30,6 @@ const TreeNode = Vue.component('TreeNode', {
             dataLoading: false,
             dragNodeHighlight: false,
         };
-    },
-    computed: {
-        children() {
-            console.log(this.$vnode);
-            return this.$vnode.data.props ? this.$vnode.data.props.vChildren : null;
-        },
     },
     methods: {
         renderChildren() {
@@ -99,13 +93,13 @@ const TreeNode = Vue.component('TreeNode', {
         },
     },
     render(h) {
+        console.log('at tree node component render life', this);
         let newchildren = null;
-        const children = this.children;
-        if (children) {
-            const vchildren = loop(children, h, TreeNode);
+        const vChildren = this.vChildren;
+        if (vChildren) {
             newchildren = (
                 <ul>
-                    {vchildren.map(vnode => this.root.renderTreeNode(vnode))}
+                    {vChildren.map((vnode, i) => this.root.renderTreeNode(vnode, i))}
                 </ul>
             );
         }
@@ -141,17 +135,6 @@ const TreeNode = Vue.component('TreeNode', {
                     domProps.onDragStart = this.onDragStart;
                 }
             }
-            // return (
-                // <span
-                //     ref={this.saveSelectHandle}
-                //     title={typeof content === 'string' ? content : ''}
-                //     {...domProps}
-                //     draggable
-                //     ondragstart={this.onDragStart}
-                // >
-                //     {title}
-                // </span>
-            // );
             return h('span', {
                 attrs: {
                     draggable: true,

@@ -3,10 +3,19 @@ import Vue from 'vue';
 import TreeNode from '@/components/TreeNode';
 import {
     loop,
+    traverseTreeNodes,
+    isInclude,
 } from '@/utils';
 
 Vue.component('Tree', {
-    props: ['data'],
+    props: {
+        data: {
+            type: Array,
+        },
+        props: {
+            type: Object,
+        },
+    },
     methods: {
         /**
          * 渲染单个节点，更确切的说法应该是处理节点，视情况添加 children
@@ -14,30 +23,55 @@ Vue.component('Tree', {
          * @param {*} index
          * @param {*} level
          */
-        renderTreeNode(child, index = 0, level = 0) {
+        renderTreeNode(child, index, level = 0) {
+            console.log('at renderTreeNode function', child);
             const pos = `${level}-${index}`;
             const key = child.rckey || pos;
+            // 这里的值都是在 loop 时挂载的
+            const {
+                vChildren,
+            } = child.data;
 
-            const childProps = {
-                rckey: key,
-                title: key,
-                props: child.data,
-                vchildren: child.vChildren,
-                ...child.data,
-            };
-            return <TreeNode root={this} {...childProps} />;
+            return (<TreeNode
+                rckey={key}
+                title={key}
+                pos={pos}
+                props={child.data}
+                vChildren={vChildren}
+                root={this}
+            />);
         },
+        /**
+         * 获得
+         * @param {*} treeNode
+         */
+        getDragNodesKeys(treeNode) {
+            console.log('getDragNodesKeys', treeNode);
+            const dragNodesKeys = [];
+            const treeNodePosArr = treeNode.props.pos.split('-');
+            traverseTreeNodes(treeNode.props.children, (item, index, pos, key) => {
+                const childPosArr = pos.split('-');
+                if (
+                    (treeNode.props.pos === pos ||
+                    treeNodePosArr.length < childPosArr.length) &&
+                    isInclude(treeNodePosArr, childPosArr)
+                ) {
+                    dragNodesKeys.push(key);
+                }
+            });
+            dragNodesKeys.push(treeNode.props.eventKey || treeNode.props.pos);
+            return dragNodesKeys;
+        },
+        /**
+         * 开始拖动
+         * @param {*} e
+         * @param {*} treeNode
+         */
         onDragStart(e, treeNode) {
             console.log('tree component drag start');
             this.dragNode = treeNode;
-            const newState = {
-                dragNodesKeys: this.getDragNodesKeys(treeNode),
-            };
-            const expandedKeys = this.getExpandedKeys(treeNode, false);
-            if (expandedKeys) {
-                newState.expandedKeys = expandedKeys;
-            }
-            this.setState(newState);
+            this.dropNodeKey = this.getDragNodesKeys(treeNode);
+            // 再暴露出开始拖动的参数
             this.props.onDragStart({
                 event: e,
                 node: treeNode,
@@ -118,7 +152,7 @@ Vue.component('Tree', {
         },
     },
     render(h) {
-        // 传过来的 children，这个时候还是 VNode
+        // 得到的 children 是 VNode
         const vChildren = loop(this.data, h, TreeNode);
         /**
          * 1、一定是先渲染最顶层的节点
@@ -128,7 +162,7 @@ Vue.component('Tree', {
             role="tree-node"
             unselectable="on"
         >
-            {vChildren.map(child => this.renderTreeNode(child))}
+            {vChildren.map((child, i) => this.renderTreeNode(child, i))}
         </ul>);
     },
 });
