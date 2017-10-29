@@ -16,9 +16,9 @@ li {
     background: #2d8cf0;
 }
 .drag-over-gap-top {
-    border-top: 4px solid #2b85e4;
+    border-top: 2px solid #2b85e4;
 }
 .drag-over-gap-bottom {
-    border-bottom: 4px solid #2b85e4;
+    border-bottom: 2px solid #2b85e4;
 }
 

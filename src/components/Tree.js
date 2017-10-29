@@ -109,8 +109,10 @@ Vue.component('Tree', {
          * @param {VueComponent} treeNode 实际进入的节点，所以是一直在变化的
          */
         onDragEnter(e, treeNode) {
+            console.log(treeNode.title);
             // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
+            console.log(dropPosition);
             // 如果正在拖动的节点和鼠标所在的是同一个节点，就直接退出
             if (
                 this.dragNode.eventKey === treeNode.eventKey &&
@@ -136,7 +138,6 @@ Vue.component('Tree', {
          * @param {VueComponent} treeNode 放下时鼠标所在的节点
          */
         onDrop(e, treeNode) {
-            console.log('on drop in tree', treeNode, this.dragNodesKeys);
             const eventKey = treeNode.eventKey;
 
             this.dragOverNodeKey = '';
@@ -178,6 +179,7 @@ Vue.component('Tree', {
             // 敏感度
             const gapHeight = 2; // TODO: remove hard code
             // 如果是靠近下边缘，就返回 1
+            console.log(pageY, (offsetTop + offsetHeight) - gapHeight, offsetTop + gapHeight);
             if (pageY > (offsetTop + offsetHeight) - gapHeight) {
                 return 1;
             }
