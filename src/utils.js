@@ -2,27 +2,26 @@
  * 生成 VNode 组成的数组
  * @param {*} data
  */
-export const loop = (data, h, component) => {
-    console.log(data);
-    return data.map((item, i) => {
+export const loop = (data, h, component, level = '0') =>
+     data.map((item, i) => {
         if (item.children && item.children.length) {
+            const newLevel = `${level}-0`;
             return h(component, {
                 // 这里的键都挂载在 VNode.data 上
                 index: i,
                 rckey: item.key,
                 title: item.key,
-                vChildren: loop(item.children, h, component),
+                vChildren: loop(item.children, h, component, newLevel),
+                level,
             }, []);
         }
         return h(component, {
-            props: {
-                index: i,
-                rckey: item.key,
-                title: item.key,
-            },
+            index: i,
+            rckey: item.key,
+            title: item.key,
+            level,
         }, []);
     });
-};
 
 export function traverseTreeNodes(treeNodes = [], callback) {
     const traverse = (subTreeNodes, level, parentsChildrenPos, parentPos) => {

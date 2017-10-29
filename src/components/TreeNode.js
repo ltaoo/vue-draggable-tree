@@ -25,7 +25,6 @@ const TreeNode = Vue.component('TreeNode', {
         },
     },
     data() {
-        console.log('in tree node', this, this.rckey);
         return {
             dataLoading: false,
             dragNodeHighlight: false,
@@ -93,7 +92,6 @@ const TreeNode = Vue.component('TreeNode', {
         },
     },
     render(h) {
-        console.log('at tree node component render life', this);
         let newchildren = null;
         const vChildren = this.vChildren;
         if (vChildren) {

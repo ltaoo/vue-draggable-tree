@@ -14,6 +14,11 @@ Vue.component('Tree', {
         },
         props: {
             type: Object,
+            default() {
+                return {
+                    onDragStart() {},
+                };
+            },
         },
     },
     methods: {
@@ -23,14 +28,16 @@ Vue.component('Tree', {
          * @param {*} index
          * @param {*} level
          */
-        renderTreeNode(child, index, level = 0) {
-            console.log('at renderTreeNode function', child);
-            const pos = `${level}-${index}`;
-            const key = child.rckey || pos;
+        renderTreeNode(child, index) {
             // 这里的值都是在 loop 时挂载的
             const {
                 vChildren,
+                rckey,
+                level,
             } = child.data;
+
+            const pos = `${level}-${index}`;
+            const key = rckey || pos;
 
             return (<TreeNode
                 rckey={key}
@@ -48,18 +55,19 @@ Vue.component('Tree', {
         getDragNodesKeys(treeNode) {
             console.log('getDragNodesKeys', treeNode);
             const dragNodesKeys = [];
-            const treeNodePosArr = treeNode.props.pos.split('-');
-            traverseTreeNodes(treeNode.props.children, (item, index, pos, key) => {
+            // 拿到位置信息
+            const treeNodePosArr = treeNode.pos.split('-');
+            traverseTreeNodes(treeNode.children, (item, index, pos, key) => {
                 const childPosArr = pos.split('-');
                 if (
-                    (treeNode.props.pos === pos ||
+                    (treeNode.pos === pos ||
                     treeNodePosArr.length < childPosArr.length) &&
                     isInclude(treeNodePosArr, childPosArr)
                 ) {
                     dragNodesKeys.push(key);
                 }
             });
-            dragNodesKeys.push(treeNode.props.eventKey || treeNode.props.pos);
+            dragNodesKeys.push(treeNode.eventKey || treeNode.pos);
             return dragNodesKeys;
         },
         /**
@@ -71,6 +79,7 @@ Vue.component('Tree', {
             console.log('tree component drag start');
             this.dragNode = treeNode;
             this.dropNodeKey = this.getDragNodesKeys(treeNode);
+            console.log(this.dropNodeKey);
             // 再暴露出开始拖动的参数
             this.props.onDragStart({
                 event: e,
