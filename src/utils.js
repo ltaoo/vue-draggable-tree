@@ -32,6 +32,9 @@ export function traverseTreeNodes(treeNodes = [], callback) {
 
         // 真正开始遍历传进来的 VueComponents
         newSubTreeNodes.forEach((item, index) => {
+            if (!item.isTreeNode) {
+                return;
+            }
             // const pos = `${level}-${index}`;
             const pos = item.pos;
             parentsChildrenPos.push(pos); // Note: side effect
