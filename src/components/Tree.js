@@ -1,15 +1,15 @@
 import Vue from 'vue';
-import TreeNode from '@/components/TreeNode';
+import TreeNode from './TreeNode';
 import {
     loop,
     traverseTreeNodes,
     isInclude,
     getOffset,
-} from '@/utils';
+} from '../utils';
 
 import './style.css';
 
-Vue.component('Tree', {
+export default Vue.component('Tree', {
     props: {
         // 要渲染的树
         data: {
@@ -19,6 +19,7 @@ Vue.component('Tree', {
         props: {
             type: Object,
         },
+        template: {},
     },
     data() {
         return {
@@ -40,10 +41,12 @@ Vue.component('Tree', {
                 vChildren,
                 rckey,
                 level,
+                title,
+                source,
             } = child.data;
             //
             const pos = `${level}-${index}`;
-            const key = rckey || pos;
+            const key = rckey;
 
             // hover 时的 border
             const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
@@ -51,7 +54,7 @@ Vue.component('Tree', {
 
             return (<TreeNode
                 root={this}
-                title={key}
+                title={title}
                 rckey={key}
                 pos={pos}
                 props={child.data}
@@ -59,6 +62,8 @@ Vue.component('Tree', {
                 eventKey={key}
                 dragOverGapTop={dragOverGapTop}
                 dragOverGapBottom={dragOverGapBottom}
+                source={source}
+                template={this.template}
             />);
         },
         /**
@@ -196,6 +201,7 @@ Vue.component('Tree', {
          * 2、如果节点还有子节点，交给子节点自己处理
          */
         return (<ul
+            class="tree"
             role="tree-node"
             unselectable="on"
         >
