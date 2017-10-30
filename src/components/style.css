@@ -9,10 +9,10 @@ li {
     color: #495060;
     cursor: pointer;
 }
-.c-title:hover {
-    background: #5cadff;
-}
 .c-node-selected {
+    background: #2d8cf0;
+}
+.drag-over {
     background: #2d8cf0;
 }
 .drag-over-gap-top {

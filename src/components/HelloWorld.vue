@@ -110,16 +110,18 @@
                     let i;
                     // 寻找放置的那个节点对应的数组，保存为 ar
                     loop(data, dropKey, (item, index, arr) => {
+                        console.log('index', item, arr, index);
                         ar = arr;
                         i = index;
                     });
-                    // 如果是放到上边缘
-                    if (dropPosition === -1) {
-                        ar.splice(i, 0, dragObj);
+                    // 如果是放到下边缘
+                    if (dropPosition === 1) {
+                        ar.splice(i + 1, 0, dragObj);
                     } else {
-                        ar.splice(i - 1, 0, dragObj);
+                        ar.splice(i, 0, dragObj);
                     }
                 } else {
+                    // 成为子节点
                     loop(data, dropKey, (item) => {
                         /* eslint-disable */
                         item.children = item.children || [];

@@ -163,7 +163,8 @@ const TreeNode = Vue.component('TreeNode', {
                         this.onDragEnter(e);
                     },
                     dragover: (e) => {
-                        this.onDragEnter(e);
+                        // this.onDragEnter(e);
+                        this.onDragOver(e);
                     },
                     drop: (e) => {
                         this.onDrop(e);
@@ -188,14 +189,17 @@ const TreeNode = Vue.component('TreeNode', {
           dragOverCls = 'drag-over-gap-bottom';
         }
 
-        return (
-            <li
-                class={classNames(dragOverCls)}
-            >
-                {selectHandle()}
-                {this.renderChildren()}
-            </li>
-        );
+        // return (
+        //     <li
+        //         class={classNames(dragOverCls)}
+        //     >
+        //         {selectHandle()}
+        //         {this.renderChildren()}
+        //     </li>
+        // );
+        return h('li', {
+            class: classNames(dragOverCls),
+        }, [selectHandle(), this.renderChildren()]);
     },
 });
 
