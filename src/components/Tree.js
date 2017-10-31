@@ -51,6 +51,7 @@ export default Vue.component('Tree', {
             // hover 时的 border
             const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
             const dragOverGapBottom = this.dragOverNodeKey === key && this.dropPosition === 1;
+            const dragOver = this.dragOverNodeKey === key && this.dropPosition === 0;
 
             return (<TreeNode
                 root={this}
@@ -60,6 +61,7 @@ export default Vue.component('Tree', {
                 props={child.data}
                 vChildren={vChildren}
                 eventKey={key}
+                dragOver={dragOver}
                 dragOverGapTop={dragOverGapTop}
                 dragOverGapBottom={dragOverGapBottom}
                 source={source}

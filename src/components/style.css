@@ -1,24 +1,26 @@
-li {
-    margin: 4px;
+.tree {
+  width: 600px;
+}
+.tree ul {
+  margin-left: 20px;
+}
+.title-wrapper {
+  display: inline-block;
+  height: 26px;
 }
 .c-title {
-    display: inline-block;
-    min-width: 80px;
-    border-radius: 5px;
-    padding: 4px 6px;
-    color: #495060;
-    cursor: pointer;
+  display: inline-block;
+  min-width: 80px;
+  border-radius: 5px;
+  color: #495060;
+  cursor: pointer;
 }
-.c-node-selected {
-    background: #2d8cf0;
+.drag-over>.draggable {
+  background: #2d8cf0;
 }
-.drag-over {
-    background: #2d8cf0;
+.drag-over-gap-top>.draggable {
+  border-top: 2px solid #2b85e4;
 }
-.drag-over-gap-top {
-    border-top: 2px solid #2b85e4;
+.drag-over-gap-bottom>.draggable {
+  border-bottom: 2px solid #2b85e4;
 }
-.drag-over-gap-bottom {
-    border-bottom: 2px solid #2b85e4;
-}
-
