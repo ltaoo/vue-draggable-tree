@@ -167,7 +167,8 @@ const TreeNode = Vue.component('TreeNode', {
                 ref: 'selectHandle',
                 attrs: {
                     draggable: true,
-                    class: 'draggable title-wrapper',
+                    class: 'title-wrapper draggable',
+                    style: 'height: 17px; font-size: 14px; padding-top: 2px; vertical-align: top;',
                 },
                 domProps: {
                     draggable: true,
@@ -192,7 +193,6 @@ const TreeNode = Vue.component('TreeNode', {
                 },
             }, [h(Component, {
                 attrs: {
-                  style: 'height: 22px; font-size: 14px; padding: 4px 0 0 0;',
                 },
                 props: {
                     title,

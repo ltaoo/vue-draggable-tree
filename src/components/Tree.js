@@ -26,6 +26,7 @@ export default Vue.component('Tree', {
             dragNodesKeys: '',
             dragOverNodeKey: '',
             dropNodeKey: '',
+            dropPosition: '',
         };
     },
     methods: {
@@ -118,6 +119,7 @@ export default Vue.component('Tree', {
         onDragEnter(e, treeNode) {
             // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
+            console.log(dropPosition);
             // 如果正在拖动的节点和鼠标所在的是同一个节点，就直接退出
             if (
                 this.dragNode.eventKey === treeNode.eventKey &&
