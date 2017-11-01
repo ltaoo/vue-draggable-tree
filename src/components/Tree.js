@@ -11,7 +11,7 @@ import './style.css';
 
 export default Vue.component('Tree', {
     props: {
-        // 要渲染的树
+        // 要渲染的数据
         data: {
             type: Array,
         },
@@ -19,13 +19,15 @@ export default Vue.component('Tree', {
         props: {
             type: Object,
         },
+        // 自定义模板
         template: {},
     },
     data() {
+        this.dropNodeKey = '';
+        this.dragNodesKeys = '';
+
         return {
-            dragNodesKeys: '',
             dragOverNodeKey: '',
-            dropNodeKey: '',
             dropPosition: '',
         };
     },
@@ -67,6 +69,7 @@ export default Vue.component('Tree', {
                 dragOverGapBottom={dragOverGapBottom}
                 source={source}
                 template={this.template}
+                draggable={true}
             />);
         },
         /**
@@ -82,7 +85,6 @@ export default Vue.component('Tree', {
              */
             traverseTreeNodes(treeNode.$children, (item, index, pos, key) => {
                 const childPosArr = pos.split('-');
-                // 如果
                 if (
                     (treeNode.pos === pos ||
                     treeNodePosArr.length < childPosArr.length) &&
@@ -119,7 +121,6 @@ export default Vue.component('Tree', {
         onDragEnter(e, treeNode) {
             // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
-            console.log(dropPosition);
             // 如果正在拖动的节点和鼠标所在的是同一个节点，就直接退出
             if (
                 this.dragNode.eventKey === treeNode.eventKey &&
@@ -196,6 +197,36 @@ export default Vue.component('Tree', {
             // 否则就返回 0，表示在节点内部
             return 0;
         },
+        /**
+         *
+         * @param {*} treeNode
+         */
+        // onExpand(treeNode) {
+        //     const { props, state } = this;
+        //     const expanded = !treeNode.expanded;
+        //     const expandedKeys = [...state.expandedKeys];
+        //     const eventKey = treeNode.props.eventKey;
+        //     const index = expandedKeys.indexOf(eventKey);
+        //     if (expanded && index === -1) {
+        //         expandedKeys.push(eventKey);
+        //     } else if (!expanded && index > -1) {
+        //         expandedKeys.splice(index, 1);
+        //     }
+        //     const controlled = 'expandedKeys' in props;
+        //     if (!controlled) {
+        //         this.setState({ expandedKeys });
+        //     }
+        //     props.onExpand(expandedKeys, { node: treeNode, expanded });
+        //     // After data loaded, need set new expandedKeys
+        //     if (expanded && props.loadData) {
+        //         return props.loadData(treeNode).then(() => {
+        //             if (!controlled) {
+        //             this.setState({ expandedKeys });
+        //             }
+        //         });
+        //     }
+        //     return false;
+        // },
     },
     render(h) {
         // 得到的 children 是 VNode

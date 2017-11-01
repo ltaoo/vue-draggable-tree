@@ -18,6 +18,12 @@ const defaultTemplate = Vue.component('DEFAULT_TEMPLATE', {
 
 const TreeNode = Vue.component('TreeNode', {
     props: {
+        prefixCls: {
+            type: String,
+            default() {
+                return 'rc';
+            },
+        },
         source: {
             type: Object,
         },
@@ -55,6 +61,7 @@ const TreeNode = Vue.component('TreeNode', {
         return {
             dataLoading: false,
             dragNodeHighlight: false,
+            expanded: false,
         };
     },
     computed: {
@@ -67,14 +74,15 @@ const TreeNode = Vue.component('TreeNode', {
          * 渲染子节点
          */
         renderChildren() {
+            const { expanded } = this;
             let newchildren = null;
             const vChildren = this.vChildren;
-            if (vChildren) {
-                newchildren = (
-                    <ul>
-                        {vChildren.map((vnode, i) => this.root.renderTreeNode(vnode, i))}
-                    </ul>
-                );
+            if (vChildren && !expanded) {
+                newchildren = <ul>
+                    {vChildren.map((vnode, i) =>
+                        this.root.renderTreeNode(vnode, i),
+                    )}
+                </ul>;
             }
             return newchildren;
         },
@@ -129,34 +137,59 @@ const TreeNode = Vue.component('TreeNode', {
             this.dragNodeHighlight = false;
             this.root.onDragEnd(e, this);
         },
+        onExpand() {
+            this.expanded = !this.expanded;
+            // const callbackPromise = this.root.onExpand(this);
+            // if (callbackPromise && typeof callbackPromise === 'object') {
+            //     const setLoading = (dataLoading) => {
+            //         this.dataLoading = dataLoading;
+            //     };
+            //     setLoading(true);
+            //     callbackPromise.then(() => {
+            //         setLoading(false);
+            //     }, () => {
+            //         setLoading(false);
+            //     });
+            // }
+        },
+        switcher() {
+            // const { prefixCls } = this;
+            let state = '';
+            if (this.source.children && this.source.children.length > 0) {
+                // 如果是开的
+                if (this.expanded) {
+                    state = '+';
+                } else {
+                    state = '-';
+                }
+            }
+            return <span onClick={this.onExpand}>{state}</span>;
+        },
     },
     render(h) {
         // 渲染可拖拽部分，标题
         const selectHandle = () => {
-            const props = {
-                disabled: false,
-            };
+            const { prefixCls } = this;
             const content = this.title;
-            const prefixCls = 'c';
             const title = <span class={`${prefixCls}-title`}>{content}</span>;
             const wrap = `${prefixCls}-node-content-wrapper`;
             const domProps = {
                 class: `${wrap} ${wrap}-normal`,
-                onMouseEnter: this.onMouseEnter,
-                onMouseLeave: this.onMouseLeave,
-                onContextMenu: this.onContextMenu,
+                // onMouseEnter: this.onMouseEnter,
+                // onMouseLeave: this.onMouseLeave,
+                // onContextMenu: this.onContextMenu,
             };
-            if (!props.disabled) {
-                if (props.selected || this.dragNodeHighlight) {
+            if (!this.disabled) {
+                if (this.selected || this.dragNodeHighlight) {
                     domProps.class += ` ${prefixCls}-node-selected`;
                 }
-                domProps.onClick = (e) => {
-                    if (this.isSelectable()) {
-                        e.preventDefault();
-                        this.onSelect();
-                    }
-                };
-                if (props.draggable) {
+                // domProps.onClick = (e) => {
+                //     if (this.isSelectable()) {
+                //         e.preventDefault();
+                //         this.onSelect();
+                //     }
+                // };
+                if (this.draggable) {
                     domProps.class += ' draggable';
                     domProps.draggable = true;
                     domProps['aria-grabbed'] = true;
@@ -166,7 +199,6 @@ const TreeNode = Vue.component('TreeNode', {
             return h('span', {
                 ref: 'selectHandle',
                 attrs: {
-                    draggable: true,
                     class: 'title-wrapper draggable',
                     style: 'height: 17px; font-size: 14px; padding-top: 2px; vertical-align: top;',
                 },
@@ -181,7 +213,6 @@ const TreeNode = Vue.component('TreeNode', {
                         this.onDragEnter(e);
                     },
                     dragover: (e) => {
-                        // this.onDragEnter(e);
                         this.onDragOver(e);
                     },
                     drop: (e) => {
@@ -201,7 +232,7 @@ const TreeNode = Vue.component('TreeNode', {
             }, [])]);
         };
         // 当前位置
-        // const prefixCls = 'c';
+        // const { prefixCls } = this;
         // let disabledCls = '';
         let dragOverCls = '';
         if (this.disabled) {
@@ -216,7 +247,7 @@ const TreeNode = Vue.component('TreeNode', {
 
         return h('li', {
             class: classNames(dragOverCls),
-        }, [selectHandle(), this.renderChildren()]);
+        }, [this.switcher(), selectHandle(), this.renderChildren()]);
     },
 });
 

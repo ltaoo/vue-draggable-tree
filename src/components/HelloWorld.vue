@@ -100,14 +100,12 @@ export default {
             console.log('start', info);
         },
         onDragEnter(info) {
-            console.log('enter', info);
             this.expandedKeys = info.expandedKeys;
         },
         /**
-             * 结束拖拽后此时的信息，包括目标节点、拖拽节点、位置
-             */
+         * 结束拖拽后此时的信息，包括目标节点、拖拽节点、位置
+         */
         onDrop(info) {
-            console.log('on drop in main', info);
             // 目标节点
             const dropKey = info.node.eventKey;
             // 正在拖拽的节点
@@ -148,7 +146,6 @@ export default {
                 let i;
                 // 寻找放置的那个节点对应的数组，保存为 ar
                 loop(data, dropKey, (item, index, arr) => {
-                    console.log('index', item, arr, index);
                     ar = arr;
                     i = index;
                 });
