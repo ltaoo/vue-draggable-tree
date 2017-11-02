@@ -92,6 +92,7 @@ export default {
                 onDrop: this.onDrop,
                 onDragEnd() {},
                 onDragOver() {},
+                onExpand() {},
             };
         },
     },

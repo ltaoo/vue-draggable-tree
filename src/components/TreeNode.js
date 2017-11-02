@@ -2,6 +2,7 @@ import Vue from 'vue';
 import classNames from 'classnames';
 
 const defaultTitle = '---';
+const defaultPrefixCls = 'rc';
 
 const defaultTemplate = Vue.component('DEFAULT_TEMPLATE', {
     props: {
@@ -21,7 +22,7 @@ const TreeNode = Vue.component('TreeNode', {
         prefixCls: {
             type: String,
             default() {
-                return 'rc';
+                return defaultPrefixCls;
             },
         },
         source: {
@@ -55,16 +56,20 @@ const TreeNode = Vue.component('TreeNode', {
             type: Boolean,
         },
         template: {},
+        // 展开收起状态
+        expanded: {
+            type: Boolean,
+        },
     },
     data() {
         this.isTreeNode = true;
         return {
             dataLoading: false,
             dragNodeHighlight: false,
-            expanded: false,
         };
     },
     computed: {
+        // 将正在拖拽的节点暴露在 this 上
         handleSelect() {
             return this.$refs.handleSelect;
         },
@@ -88,17 +93,6 @@ const TreeNode = Vue.component('TreeNode', {
         },
         onSelect() {
             this.root.onSelect(this);
-        },
-        onMouseEnter(e) {
-            e.preventDefault();
-            this.root.onMouseEnter(e, this);
-        },
-        onMouseLeave(e) {
-            e.preventDefault();
-            this.root.onMouseLeave(e, this);
-        },
-        onContextMenu(e) {
-            this.root.onContextMenu(e, this);
         },
         onDragStart(e) {
             e.stopPropagation();
@@ -138,19 +132,18 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.onDragEnd(e, this);
         },
         onExpand() {
-            this.expanded = !this.expanded;
-            // const callbackPromise = this.root.onExpand(this);
-            // if (callbackPromise && typeof callbackPromise === 'object') {
-            //     const setLoading = (dataLoading) => {
-            //         this.dataLoading = dataLoading;
-            //     };
-            //     setLoading(true);
-            //     callbackPromise.then(() => {
-            //         setLoading(false);
-            //     }, () => {
-            //         setLoading(false);
-            //     });
-            // }
+            const callbackPromise = this.root.onExpand(this);
+            if (callbackPromise && typeof callbackPromise === 'object') {
+                const setLoading = (dataLoading) => {
+                    this.dataLoading = dataLoading;
+                };
+                setLoading(true);
+                callbackPromise.then(() => {
+                    setLoading(false);
+                }, () => {
+                    setLoading(false);
+                });
+            }
         },
         switcher() {
             // const { prefixCls } = this;
@@ -206,21 +199,11 @@ const TreeNode = Vue.component('TreeNode', {
                     draggable: true,
                 },
                 on: {
-                    dragstart: (e) => {
-                        this.onDragStart(e);
-                    },
-                    dragenter: (e) => {
-                        this.onDragEnter(e);
-                    },
-                    dragover: (e) => {
-                        this.onDragOver(e);
-                    },
-                    drop: (e) => {
-                        this.onDrop(e);
-                    },
-                    dragend: (e) => {
-                        this.onDragEnd(e);
-                    },
+                    dragstart: this.onDragStart,
+                    dragenter: this.onDragEnter,
+                    dragover: this.onDragOver,
+                    drop: this.onDrop,
+                    dragend: this.onDragEnd,
                 },
             }, [h(Component, {
                 attrs: {
