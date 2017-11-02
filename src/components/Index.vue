@@ -1,11 +1,16 @@
 <template>
     <div class="hello">
-        <Tree :expandedKeys="expandedKeys" :props="props" :onExpand="onExpand" :autoExpandParent="autoExpandParent" draggable @dragStart="onDragStart" @dragEnter="onDragEnter" @drop="onDrop" :data="gData">
-        </Tree>
+        <Tree
+            :draggable="true"
+            :data="gData"
+            :onDrop="onDrop"
+        ></Tree>
     </div>
 </template>
 
 <script>
+import Tree from './tree';
+
 const EXAMPLE_DATA = [
     {
         key: '0',
@@ -76,33 +81,16 @@ const EXAMPLE_DATA = [
 ];
 
 export default {
-    name: 'HelloWorld',
+    name: 'vue-draggable-tree-demo',
+    components: {
+        Tree,
+    },
     data() {
         return {
             gData: EXAMPLE_DATA,
-            autoExpandParent: true,
-            expandedKeys: ['0-0-key', '0-0-0-key', '0-0-0-0-key'],
         };
     },
-    computed: {
-        props() {
-            return {
-                onDragStart: this.onDragStart,
-                onDragEnter: this.onDragEnter,
-                onDrop: this.onDrop,
-                onDragEnd() {},
-                onDragOver() {},
-                onExpand() {},
-            };
-        },
-    },
     methods: {
-        onDragStart(info) {
-            console.log('start', info);
-        },
-        onDragEnter(info) {
-            this.expandedKeys = info.expandedKeys;
-        },
         /**
          * 结束拖拽后此时的信息，包括目标节点、拖拽节点、位置
          */
@@ -167,11 +155,6 @@ export default {
             }
             // 改变数据，让 vue 自己去更新视图
             this.gData = data;
-        },
-        onExpand(expandedKeys, ...arg) {
-            console.log('expand', arg);
-            this.expandedKeys = expandedKeys;
-            this.autoExpandParent = false;
         },
     },
 };

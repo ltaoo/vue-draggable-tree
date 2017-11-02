@@ -1,13 +1,17 @@
 import Vue from 'vue';
 import TreeNode from './TreeNode';
+import DefaultTemplate from './defaultTemplate';
+
 import {
     loop,
     traverseTreeNodes,
     isInclude,
     getOffset,
-} from '../utils';
+} from './utils';
 
 import './style.css';
+
+function foo() {}
 
 export default Vue.component('Tree', {
     props: {
@@ -15,12 +19,50 @@ export default Vue.component('Tree', {
         data: {
             type: Array,
         },
-        // 暴露的所有事件
-        props: {
-            type: Object,
+        // 是否自动展开节点
+        autoExpandParent: {
+            type: Boolean,
+            default: true,
         },
-        // 自定义模板
-        template: {},
+        // 是否可拖拽(IE > 8)
+        draggable: {
+            type: Boolean,
+            default: false,
+        },
+        // 拖动结束事件
+        onDragEnd: {
+            type: Function,
+            default: foo,
+        },
+        onDragEnter: {
+            type: Function,
+            default: foo,
+        },
+        onDragLeave: {
+            type: Function,
+            default: foo,
+        },
+        onDragOver: {
+            type: Function,
+            default: foo,
+        },
+        onDragStart: {
+            type: Function,
+            default: foo,
+        },
+        onDrop: {
+            type: Function,
+            default: foo,
+        },
+        onExpand: {
+            type: Function,
+            default: foo,
+        },
+        // 自定义子组件
+        template: {
+            type: Function,
+            default: DefaultTemplate,
+        },
     },
     data() {
         this.dropNodeKey = '';
@@ -28,6 +70,7 @@ export default Vue.component('Tree', {
 
         return {
             dragOverNodeKey: '',
+            // 拖动时的位置
             dropPosition: '',
             // 展开的节点
             expandedKeys: [],
@@ -35,10 +78,9 @@ export default Vue.component('Tree', {
     },
     methods: {
         /**
-         * 渲染单个节点
-         * @param {VNode} child
-         * @param {*} index
-         * @param {*} level
+         * 渲染单个子节点
+         * @param {VNode} child 要渲染的节点
+         * @param {Number} index 遍历时的 index
          */
         renderTreeNode(child, index) {
             // 这里的值都是在 loop 时挂载到 VNode 上的
@@ -49,11 +91,11 @@ export default Vue.component('Tree', {
                 title,
                 source,
             } = child.data;
-            //
+            // 给每个节点一个唯一值，同时也是表示位置
             const pos = `${level}-${index}`;
             const key = rckey;
 
-            // hover 时的 border
+            // 根据这三个状态，来显示拖动时的交互
             const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
             const dragOverGapBottom = this.dragOverNodeKey === key && this.dropPosition === 1;
             const dragOver = this.dragOverNodeKey === key && this.dropPosition === 0;
@@ -66,7 +108,6 @@ export default Vue.component('Tree', {
                 title={title}
                 rckey={key}
                 pos={pos}
-                props={child.data}
                 vChildren={vChildren}
                 eventKey={key}
                 dragOver={dragOver}
@@ -74,7 +115,7 @@ export default Vue.component('Tree', {
                 dragOverGapBottom={dragOverGapBottom}
                 source={source}
                 template={this.template}
-                draggable={true}
+                draggable={this.draggable}
                 expanded={expanded}
             />);
         },
@@ -109,12 +150,12 @@ export default Vue.component('Tree', {
          * @param {*} e
          * @param {*} treeNode
          */
-        onDragStart(e, treeNode) {
+        dragStart(e, treeNode) {
             this.dragNode = treeNode;
             // 保存当前正在拖动的节点 key || pos
             this.dragNodesKeys = this.getDragNodesKeys(treeNode);
             // 再暴露出开始拖动的参数
-            this.props.onDragStart({
+            this.onDragStart({
                 event: e,
                 node: treeNode,
             });
@@ -124,7 +165,7 @@ export default Vue.component('Tree', {
          * @param {Event} e
          * @param {VueComponent} treeNode 实际进入的节点，所以是一直在变化的
          */
-        onDragEnter(e, treeNode) {
+        dragEnter(e, treeNode) {
             // 获取到要放置的节点位置
             const dropPosition = this.calcDropPosition(e, treeNode);
             // 如果正在拖动的节点和鼠标所在的是同一个节点，就直接退出
@@ -140,18 +181,18 @@ export default Vue.component('Tree', {
             this.dragOverNodeKey = treeNode.eventKey;
             this.dropPosition = dropPosition;
         },
-        onDragOver(e, treeNode) {
-            this.props.onDragOver({ event: e, node: treeNode });
+        dragOver(e, treeNode) {
+            this.onDragOver({ event: e, node: treeNode });
         },
-        onDragLeave(e, treeNode) {
-            this.props.onDragLeave({ event: e, node: treeNode });
+        dragLeave(e, treeNode) {
+            this.onDragLeave({ event: e, node: treeNode });
         },
         /**
          * 拖动后放下
          * @param {Event} e
          * @param {VueComponent} treeNode 放下时鼠标所在的节点
          */
-        onDrop(e, treeNode) {
+        drop(e, treeNode) {
             const eventKey = treeNode.eventKey;
 
             this.dragOverNodeKey = '';
@@ -173,11 +214,11 @@ export default Vue.component('Tree', {
             if (this.dropPosition !== 0) {
                 res.dropToGap = true;
             }
-            this.props.onDrop(res);
+            this.onDrop(res);
         },
-        onDragEnd(e, treeNode) {
+        dragEnd(e, treeNode) {
             this.dragOverNodeKey = '';
-            this.props.onDragEnd({ event: e, node: treeNode });
+            this.onDragEnd({ event: e, node: treeNode });
         },
         /**
          * onDragEnter 时调用，计算
@@ -207,8 +248,7 @@ export default Vue.component('Tree', {
          *
          * @param {VueComponent} treeNode 切换展开状态的节点
          */
-        onExpand(treeNode) {
-            const { props } = this;
+        expand(treeNode) {
             const expanded = !treeNode.expanded;
             const expandedKeys = [...this.expandedKeys];
             const eventKey = treeNode.eventKey;
@@ -221,7 +261,7 @@ export default Vue.component('Tree', {
                 expandedKeys.splice(index, 1);
             }
             this.expandedKeys = expandedKeys;
-            props.onExpand(expandedKeys, { node: treeNode, expanded });
+            this.onExpand(expandedKeys, { node: treeNode, expanded });
         },
     },
     render(h) {

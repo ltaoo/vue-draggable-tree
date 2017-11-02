@@ -1,21 +1,118 @@
-# rc-tree
+# vue-draggable-tree
 
-> A Vue.js project
+> 可拖拽 vue 树
 
-## Build Setup
+![效果图](./draggable-tree.gif)
 
-``` bash
-# install dependencies
-npm install
+## Install
 
-# serve with hot reload at localhost:8080
-npm run dev
+## Usage
 
-# build for production with minification
-npm run build
+```javascript
+<template>
+    <div class="hello">
+        <Tree
+            :draggable="true"
+            :data="gData"
+            :onDrop="onDrop"
+        ></Tree>
+    </div>
+</template>
 
-# build for production and view the bundle analyzer report
-npm run build --report
+<script>
+import Tree from './tree';
+
+export default {
+    name: 'vue-draggable-tree-demo',
+    components: {
+        Tree,
+    },
+    data() {
+        return {
+            gData: EXAMPLE_DATA,
+        };
+    },
+    methods: {
+        /**
+         * 结束拖拽后此时的信息，包括目标节点、拖拽节点、位置
+         */
+        onDrop(info) {
+            // 目标节点
+            const dropKey = info.node.eventKey;
+            // 正在拖拽的节点
+            const dragKey = info.dragNode.eventKey;
+            const dropPos = info.node.pos.split('-');
+            const dropPosition =
+                info.dropPosition - Number(dropPos[dropPos.length - 1]);
+            // const dragNodesKeys = info.dragNodesKeys;
+            /**
+             * 遍历 data，节点对应的对象
+             * @param {} data
+             * @param {} key
+             * @param {Function} callback
+             */
+            const loop = (data, key, callback) => {
+                data.forEach((item, index, arr) => {
+                    if (item.key === key) {
+                        return callback(item, index, arr);
+                    }
+                    if (item.children) {
+                        return loop(item.children, key, callback);
+                    }
+                    return false;
+                });
+            };
+            // 浅拷贝
+            const data = [...this.gData];
+            let dragObj;
+            loop(data, dragKey, (item, index, arr) => {
+                // 找到后，删掉该节点
+                arr.splice(index, 1);
+                dragObj = item;
+            });
+            // 然后处理应该放到哪里
+            if (info.dropToGap) {
+                // 如果是在两个节点之间
+                let ar;
+                let i;
+                // 寻找放置的那个节点对应的数组，保存为 ar
+                loop(data, dropKey, (item, index, arr) => {
+                    ar = arr;
+                    i = index;
+                });
+                // 如果是放到下边缘
+                if (dropPosition === 1) {
+                    ar.splice(i + 1, 0, dragObj);
+                } else {
+                    ar.splice(i, 0, dragObj);
+                }
+            } else {
+                // 成为子节点
+                loop(data, dropKey, (item) => {
+                    /* eslint-disable */
+                    item.children = item.children || [];
+                    // where to insert 示例添加到尾部，可以是随意位置
+                    item.children.push(dragObj);
+                });
+            }
+            // 改变数据，让 vue 自己去更新视图
+            this.gData = data;
+        },
+    },
+};
+</script>
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## API
+
+属性 | 说明 | 类型 | 默认值 |
+---|---|---|---|
+data | 要渲染的数据 | Array | 空
+draggable | 设置节点可拖拽（IE>8）| Boolean | false
+onDragEnd | dragend 触发时调用 | function({event, node}) | -
+onDragEnter | dragenter 触发时调用 | function({event, node}) | -
+onDragLeave | dragleave 触发时调用 | function({event, node}) | -
+onDragOver | dragover 触发时调用 | function({event, node}) | -
+onDragStart | dragstart 触发时调用 | function({event, node}) | -
+onDrop | drop 触发时调用 | function({event, node}) | -
+onExpand | 展开/收起节点时触发 | function({event, node}) | -

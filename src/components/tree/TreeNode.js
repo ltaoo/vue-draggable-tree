@@ -4,19 +4,6 @@ import classNames from 'classnames';
 const defaultTitle = '---';
 const defaultPrefixCls = 'rc';
 
-const defaultTemplate = Vue.component('DEFAULT_TEMPLATE', {
-    props: {
-        title: {
-        },
-        node: {
-            type: Object,
-        },
-    },
-    render() {
-        return (<div><span>{this.title}</span></div>);
-    },
-});
-
 const TreeNode = Vue.component('TreeNode', {
     props: {
         prefixCls: {
@@ -47,6 +34,10 @@ const TreeNode = Vue.component('TreeNode', {
             type: Array,
         },
         eventKey: {
+        },
+        draggable: {
+            type: Boolean,
+            default: false,
         },
         dragOver: {},
         dragOverGapTop: {
@@ -97,7 +88,7 @@ const TreeNode = Vue.component('TreeNode', {
         onDragStart(e) {
             e.stopPropagation();
             this.dragNodeHighlight = true;
-            this.root.onDragStart(e, this);
+            this.root.dragStart(e, this);
             try {
                 // ie throw error
                 // firefox-need-it
@@ -109,30 +100,30 @@ const TreeNode = Vue.component('TreeNode', {
         onDragEnter(e) {
             e.preventDefault();
             e.stopPropagation();
-            this.root.onDragEnter(e, this);
+            this.root.dragEnter(e, this);
         },
         onDragOver(e) {
             e.preventDefault();
             e.stopPropagation();
-            this.root.onDragOver(e, this);
+            this.root.dragOver(e, this);
         },
         onDragLeave(e) {
             e.stopPropagation();
-            this.root.onDragLeave(e, this);
+            this.root.dragLeave(e, this);
         },
         onDrop(e) {
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            this.root.onDrop(e, this);
+            this.root.drop(e, this);
         },
         onDragEnd(e) {
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            this.root.onDragEnd(e, this);
+            this.root.dragEnd(e, this);
         },
         onExpand() {
-            const callbackPromise = this.root.onExpand(this);
+            const callbackPromise = this.root.expand(this);
             if (callbackPromise && typeof callbackPromise === 'object') {
                 const setLoading = (dataLoading) => {
                     this.dataLoading = dataLoading;
@@ -165,38 +156,15 @@ const TreeNode = Vue.component('TreeNode', {
             const { prefixCls } = this;
             const content = this.title;
             const title = <span class={`${prefixCls}-title`}>{content}</span>;
-            const wrap = `${prefixCls}-node-content-wrapper`;
-            const domProps = {
-                class: `${wrap} ${wrap}-normal`,
-                // onMouseEnter: this.onMouseEnter,
-                // onMouseLeave: this.onMouseLeave,
-                // onContextMenu: this.onContextMenu,
-            };
-            if (!this.disabled) {
-                if (this.selected || this.dragNodeHighlight) {
-                    domProps.class += ` ${prefixCls}-node-selected`;
-                }
-                // domProps.onClick = (e) => {
-                //     if (this.isSelectable()) {
-                //         e.preventDefault();
-                //         this.onSelect();
-                //     }
-                // };
-                if (this.draggable) {
-                    domProps.class += ' draggable';
-                    domProps.draggable = true;
-                    domProps['aria-grabbed'] = true;
-                }
-            }
-            const Component = this.template || defaultTemplate;
+
+            const Component = this.template;
+
             return h('span', {
                 ref: 'selectHandle',
                 attrs: {
                     class: 'title-wrapper draggable',
                     style: 'height: 17px; font-size: 14px; padding-top: 2px; vertical-align: top;',
-                },
-                domProps: {
-                    draggable: true,
+                    draggable: this.draggable,
                 },
                 on: {
                     dragstart: this.onDragStart,
