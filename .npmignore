@@ -3,9 +3,13 @@ src
 build
 config
 examples
-draggable-tree.gif
 .babelrc
 .editorconfig
 .eslintignore
 .gitignore
 webpack.config.js
+*.log
+yarn.lock
+index.js
+.postcssrc.js
+.eslintrc.js

@@ -74,7 +74,7 @@ const TreeNode = Vue.component('TreeNode', {
             let newchildren = null;
             const vChildren = this.vChildren;
             if (vChildren && !expanded) {
-                newchildren = <ul>
+                newchildren = <ul class="ivu-tree-children">
                     {vChildren.map((vnode, i) =>
                         this.root.renderTreeNode(vnode, i),
                     )}
@@ -115,6 +115,7 @@ const TreeNode = Vue.component('TreeNode', {
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
+            console.log('drop');
             this.root.drop(e, this);
         },
         onDragEnd(e) {
@@ -142,28 +143,29 @@ const TreeNode = Vue.component('TreeNode', {
             if (this.source.children && this.source.children.length > 0) {
                 // 如果是开的
                 if (this.expanded) {
-                    state = '+';
+                    state += ' ivu-tree-arrow-open';
                 } else {
-                    state = '-';
+                    state = '';
                 }
             }
-            return <span onClick={this.onExpand}>{state}</span>;
+            // return <span onClick={this.onExpand}>{state}</span>;
+            return (<span
+                        onClick={this.onExpand}
+            class={`ivu-tree-arrow${state}`}>{(this.source.children && this.source.children.length) ? <i class="ivu-icon ivu-icon-arrow-right-b"></i> : null}</span>);
         },
     },
     render(h) {
         // 渲染可拖拽部分，标题
         const selectHandle = () => {
-            const { prefixCls } = this;
+            // const { prefixCls } = this;
             const content = this.title;
-            const title = <span class={`${prefixCls}-title`}>{content}</span>;
+            // const title = <span class={`${prefixCls}-title`}>{content}</span>;
 
             const Component = this.template;
-
             return h('span', {
                 ref: 'selectHandle',
                 attrs: {
-                    class: 'title-wrapper draggable',
-                    style: 'height: 17px; font-size: 14px; padding-top: 2px; vertical-align: top;',
+                    class: 'ant-tree-node-content-wrapper ant-tree-node-content-wrapper-normal draggable',
                     draggable: this.draggable,
                 },
                 on: {
@@ -177,7 +179,7 @@ const TreeNode = Vue.component('TreeNode', {
                 attrs: {
                 },
                 props: {
-                    title,
+                    title: content,
                     node: this.source,
                 },
             }, [])]);

@@ -1,0 +1,117 @@
+.ivu-tree ul li {
+    list-style: none;
+    margin: 8px 0;
+    padding: 0;
+    white-space: nowrap;
+    outline: 0;
+}
+.ivu-tree-arrow {
+    cursor: pointer;
+    width: 12px;
+    text-align: center;
+    display: inline-block;
+}
+.ivu-tree-arrow-open i {
+    transform: rotate(90deg);
+}
+.ivu-tree-arrow i {
+    transition: all .2s ease-in-out;
+}
+.ivu-icon {
+    display: inline-block;
+    font-family: Ionicons;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+.ivu-icon-arrow-right-b:before {
+    content: "\F10A";
+}
+/* title */
+.ivu-tree-title {
+    display: inline-block;
+    margin: 0;
+    padding: 0 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    vertical-align: top;
+    color: #495060;
+    transition: all .2s ease-in-out;
+}
+.ivu-tree-title:hover {
+    background-color: #eaf4fe;
+}
+.ivu-tree li ul {
+    margin: 0;
+    padding: 0 0 0 18px;
+}
+.ivu-tree li {
+    white-space: nowrap;
+}
+.ivu-tree ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* font-size: 12px; */
+}
+.ivu-article li:not([class^=ivu-]) {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/** ant design **/
+.ant-tree {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+}
+.ant-tree li {
+    padding: 4px 0;
+    margin: 0;
+    list-style: none;
+    white-space: nowrap;
+    outline: 0;
+}
+
+.ant-tree li span[draggable=true], .ant-tree li span[draggable] {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    margin-top: -2px;
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}
+.ant-tree li .ant-tree-node-content-wrapper {
+    display: inline-block;
+    padding: 3px 5px;
+    border-radius: 2px;
+    margin: 0;
+    cursor: pointer;
+    text-decoration: none;
+    vertical-align: top;
+    color: rgba(0,0,0,.65);
+    -webkit-transition: all .3s;
+    transition: all .3s;
+    position: relative;
+}
+.ant-tree-node-content-wrapper {
+    width: calc(100% - 18px);
+}
+.ant-tree li .ant-tree-node-content-wrapper:hover {
+    background-color: #ecf6fd;
+}
+.ant-tree li.drag-over-gap-top>span[draggable] {
+    border-top-color: #108ee9;
+}
+.ant-tree li.drag-over-gap-bottom>span[draggable] {
+    border-bottom-color: #108ee9;
+}

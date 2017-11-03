@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import TreeNode from './TreeNode';
-import DefaultTemplate from './defaultTemplate';
+// import DefaultTemplate from './defaultTemplate';
+import iViewTemplate from './iviewTemplate';
 
 import {
     loop,
@@ -61,7 +62,7 @@ export default Vue.component('Tree', {
         // 自定义子组件
         template: {
             type: Function,
-            default: DefaultTemplate,
+            default: iViewTemplate,
         },
     },
     data() {
@@ -180,6 +181,7 @@ export default Vue.component('Tree', {
 
             this.dragOverNodeKey = treeNode.eventKey;
             this.dropPosition = dropPosition;
+            console.log(dropPosition);
         },
         dragOver(e, treeNode) {
             this.onDragOver({ event: e, node: treeNode });
@@ -193,6 +195,7 @@ export default Vue.component('Tree', {
          * @param {VueComponent} treeNode 放下时鼠标所在的节点
          */
         drop(e, treeNode) {
+            console.log('drop');
             const eventKey = treeNode.eventKey;
 
             this.dragOverNodeKey = '';
@@ -214,6 +217,7 @@ export default Vue.component('Tree', {
             if (this.dropPosition !== 0) {
                 res.dropToGap = true;
             }
+            console.log(res);
             this.onDrop(res);
         },
         dragEnd(e, treeNode) {
@@ -271,8 +275,9 @@ export default Vue.component('Tree', {
          * 1、一定是先渲染最顶层的节点
          * 2、如果节点还有子节点，交给子节点自己处理
          */
+
         return (<ul
-            class="tree"
+            class="ant-tree tree"
             role="tree-node"
             unselectable="on"
         >

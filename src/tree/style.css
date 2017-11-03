@@ -1,8 +1,15 @@
+ul, li {
+    margin: 0;
+    padding: 0;
+}
+li {
+    list-style: none;
+}
 .tree {
   width: 600px;
 }
 .tree ul {
-  margin-left: 20px;
+  margin-left: 40px;
 }
 .title-wrapper {
   display: inline-block;

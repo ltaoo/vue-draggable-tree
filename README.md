@@ -4,6 +4,10 @@
 
 ![效果图](./draggable-tree.gif)
 
+## Example
+
+online example: https://ltaoo.github.io/vue-draggable-tree/examples/index.html
+
 ## Install
 
 ## Usage
@@ -116,3 +120,4 @@ onDragOver | dragover 触发时调用 | function({event, node}) | -
 onDragStart | dragstart 触发时调用 | function({event, node}) | -
 onDrop | drop 触发时调用 | function({event, node}) | -
 onExpand | 展开/收起节点时触发 | function({event, node}) | -
+template | 自定义节点内容 | VueComponent | -
