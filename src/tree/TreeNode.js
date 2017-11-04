@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import classNames from 'classnames';
 
+import arrow from './arrow.svg';
+
 const defaultTitle = '---';
 const defaultPrefixCls = 'rc';
 
@@ -115,7 +117,6 @@ const TreeNode = Vue.component('TreeNode', {
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            console.log('drop');
             this.root.drop(e, this);
         },
         onDragEnd(e) {
@@ -151,7 +152,7 @@ const TreeNode = Vue.component('TreeNode', {
             // return <span onClick={this.onExpand}>{state}</span>;
             return (<span
                         onClick={this.onExpand}
-            class={`ivu-tree-arrow${state}`}>{(this.source.children && this.source.children.length) ? <i class="ivu-icon ivu-icon-arrow-right-b"></i> : null}</span>);
+            class={`ivu-tree-arrow${state}`}>{(this.source.children && this.source.children.length) ? <img style="width: 16px; vertical-align: bottom;" src={arrow} /> : null}</span>);
         },
     },
     render(h) {

@@ -16,8 +16,7 @@ function foo() {}
 
 export default Vue.component('Tree', {
     props: {
-        // 要渲染的数据
-        data: {
+        value: {
             type: Array,
         },
         // 是否自动展开节点
@@ -53,7 +52,6 @@ export default Vue.component('Tree', {
         },
         onDrop: {
             type: Function,
-            default: foo,
         },
         onExpand: {
             type: Function,
@@ -63,6 +61,15 @@ export default Vue.component('Tree', {
         template: {
             type: Function,
             default: iViewTemplate,
+        },
+        beforeInner: {
+            type: Function,
+        },
+        beforeInsert: {
+            type: Function,
+        },
+        afterInsert: {
+            type: Function,
         },
     },
     data() {
@@ -76,6 +83,11 @@ export default Vue.component('Tree', {
             // 展开的节点
             expandedKeys: [],
         };
+    },
+    computed: {
+        data() {
+            return this.value;
+        },
     },
     methods: {
         /**
@@ -181,7 +193,6 @@ export default Vue.component('Tree', {
 
             this.dragOverNodeKey = treeNode.eventKey;
             this.dropPosition = dropPosition;
-            console.log(dropPosition);
         },
         dragOver(e, treeNode) {
             this.onDragOver({ event: e, node: treeNode });
@@ -195,7 +206,6 @@ export default Vue.component('Tree', {
          * @param {VueComponent} treeNode 放下时鼠标所在的节点
          */
         drop(e, treeNode) {
-            console.log('drop');
             const eventKey = treeNode.eventKey;
 
             this.dragOverNodeKey = '';
@@ -217,8 +227,90 @@ export default Vue.component('Tree', {
             if (this.dropPosition !== 0) {
                 res.dropToGap = true;
             }
-            console.log(res);
-            this.onDrop(res);
+            if (this.onDrop) {
+                this.onDrop(res);
+                return;
+            }
+
+            // 目标节点
+            const dropKey = res.node.eventKey;
+            // 正在拖拽的节点
+            const dragKey = res.dragNode.eventKey;
+            const dropPos = res.node.pos.split('-');
+            const dropPosition =
+                res.dropPosition - Number(dropPos[dropPos.length - 1]);
+            // const dragNodesKeys = info.dragNodesKeys;
+            /**
+             * 遍历 data，节点对应的对象
+             * @param {} data
+             * @param {} key
+             * @param {Function} callback
+             */
+            const sourceLoop = (data, key, callback) => {
+                data.forEach((item, index, arr) => {
+                    if (item.key === key) {
+                        return callback(item, index, arr);
+                    }
+                    if (item.children) {
+                        return sourceLoop(item.children, key, callback);
+                    }
+                    return false;
+                });
+            };
+            // 浅拷贝
+            const data = [...this.data];
+            let dragObj;
+            let hasDragObjArr;
+            let deleteIndex;
+            sourceLoop(data, dragKey, (item, index, arr) => {
+                // 保存正在拖拽的节点所在 children
+                hasDragObjArr = arr;
+                deleteIndex = index;
+                // hasDragObjArr.splice(index, 1);
+                dragObj = item;
+            });
+            // 然后处理应该放到哪里
+            if (res.dropToGap) {
+                // 如果是在两个节点之间
+                let ar;
+                let i;
+                // 寻找放置的那个节点对应的数组，保存为 ar
+                sourceLoop(data, dropKey, (item, index, arr) => {
+                    ar = arr;
+                    i = index;
+                });
+                if (this.beforeInsert) {
+                    this.beforeInsert('insert', ar, i, dragObj);
+                    return;
+                }
+                // 如果是放到下边缘
+                if (dropPosition === 1) {
+                    ar.splice(i + 1, 0, dragObj);
+                    hasDragObjArr.splice(deleteIndex, 1);
+                } else {
+                    ar.splice(i, 0, dragObj);
+                    hasDragObjArr.splice(deleteIndex, 1);
+                }
+            } else {
+                // 成为子节点
+                sourceLoop(data, dropKey, (item) => {
+                    /* eslint-disable */
+                    item.children = item.children || [];
+                    if (this.beforeInsert) {
+                        this.beforeInner('inner', item.children, dragObj);
+                        return;
+                    }
+                    // where to insert 示例添加到尾部，可以是随意位置
+                    item.children.push(dragObj);
+                    hasDragObjArr.splice(deleteIndex, 1);
+                });
+            }
+            // this.data = data;
+            this.$emit('input', data);
+            // 完成插入之后
+            if (this.afterInsert) {
+                this.afterInsert();
+            }
         },
         dragEnd(e, treeNode) {
             this.dragOverNodeKey = '';
