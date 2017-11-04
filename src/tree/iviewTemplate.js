@@ -1,5 +1,4 @@
 import Vue from 'vue';
-import './iview.css';
 
 export default Vue.component('IVIEW_TEMPLATE', {
     props: {

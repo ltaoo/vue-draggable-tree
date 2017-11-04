@@ -27,11 +27,15 @@ module.exports = {
         include: [path.join(__dirname, 'src')],
         exclude: /node_modules/,
       },
+      {
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
+      },
     ],
   },
   externals: {
       vue: 'vue',
-      classnames: 'classnames'
+      classnames: 'classnames',
   },
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
