@@ -15,6 +15,14 @@
       "./src/index.js"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ltaoo/vue-draggable-tree.git"
+  },
+  "homepage": "https://github.com/ltaoo/vue-draggable-tree/",
+  "bugs": {
+    "url": "https://github.com/ltaoo/vue-draggable-tree/issues"
+  },
   "dependencies": {
     "classnames": "^2.2.5",
     "vue": "^2.5.2"

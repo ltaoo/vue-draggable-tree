@@ -135,3 +135,10 @@ onDrop | drop 触发时调用 | function({event, node}) | -
 onExpand | 展开/收起节点时触发 | function({event, node}) | -
 afterInsert | 在节点插入到指定位置后调用 | function() | -
 template | 自定义节点内容 | VueComponent | -
+
+## todo
+
+[] 增加 checkbox
+[] 增加 theme 以方便直接在 iview 或者 element 项目中使用
+[] examples 展示页用例完善
+[] 代码整理
