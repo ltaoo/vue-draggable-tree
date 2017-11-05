@@ -84,3 +84,21 @@ export function getOffset(ele) {
 
     return rect;
 }
+
+/**
+ * 遍历 data，节点对应的对象
+ * @param {} data
+ * @param {} key
+ * @param {Function} callback
+ */
+export const sourceLoop = (data, key, callback) => {
+    data.forEach((item, index, arr) => {
+        if (item.key === key) {
+            return callback(item, index, arr);
+        }
+        if (item.children) {
+            return sourceLoop(item.children, key, callback);
+        }
+        return false;
+    });
+};

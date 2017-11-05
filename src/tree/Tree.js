@@ -8,6 +8,7 @@ import {
     traverseTreeNodes,
     isInclude,
     getOffset,
+    sourceLoop,
 } from './utils';
 
 import './style.css';
@@ -240,23 +241,7 @@ export default Vue.component('Tree', {
             const dropPosition =
                 res.dropPosition - Number(dropPos[dropPos.length - 1]);
             // const dragNodesKeys = info.dragNodesKeys;
-            /**
-             * 遍历 data，节点对应的对象
-             * @param {} data
-             * @param {} key
-             * @param {Function} callback
-             */
-            const sourceLoop = (data, key, callback) => {
-                data.forEach((item, index, arr) => {
-                    if (item.key === key) {
-                        return callback(item, index, arr);
-                    }
-                    if (item.children) {
-                        return sourceLoop(item.children, key, callback);
-                    }
-                    return false;
-                });
-            };
+
             // 浅拷贝
             const data = [...this.data];
             let dragObj;
