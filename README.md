@@ -128,7 +128,7 @@ export default {
 ---|---|---|---|
 data | 要渲染的数据 | Array | 空
 draggable | 设置节点可拖拽（IE>8）| Boolean | false
-onDragEnd | dragend 触发时调用 | function({event, node}) | -
+dragEnd | 拖拽结束后调用的事件 | function(ary, node, e) | -
 onDragEnter | dragenter 触发时调用 | function({event, node}) | -
 onDragLeave | dragleave 触发时调用 | function({event, node}) | -
 onDragOver | dragover 触发时调用 | function({event, node}) | -
@@ -140,11 +140,11 @@ template | 自定义节点内容 | VueComponent | -
 
 ## todo
 
-- [] 增加 checkbox
-- [] 增加 theme 以方便直接在 iview 或者 element 项目中使用
-- [] examples 展示页用例完善
-- [] 代码整理
-- [] 选中状态
-- [] 增加连接线
-- [] 增加禁用状态
-- [] 是否展开控制
+- 增加 checkbox
+- 增加 theme 以方便直接在 iview 或者 element 项目中使用
+- examples 展示页用例完善
+- 代码整理
+- 选中状态
+- 增加连接线
+- 增加禁用状态
+- 是否展开控制
