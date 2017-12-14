@@ -3,6 +3,7 @@
         draggable
         v-model="data"
         :afterInsert="afterInsert"
+        @dragEnd="handleDragEnd"
     ></Tree>
 </template>
 
@@ -91,6 +92,9 @@ export default {
     methods: {
         afterInsert() {
             console.log(this.data);
+        },
+        handleDragEnd(data, node, e) {
+            console.log(data, node, e);
         },
     },
 };

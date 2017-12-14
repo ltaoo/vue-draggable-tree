@@ -299,7 +299,7 @@ export default Vue.component('Tree', {
         },
         dragEnd(e, treeNode) {
             this.dragOverNodeKey = '';
-            this.onDragEnd({ event: e, node: treeNode });
+            this.$emit('dragEnd', this.data, treeNode, e);
         },
         /**
          * onDragEnter 时调用，计算
@@ -352,7 +352,6 @@ export default Vue.component('Tree', {
          * 1、一定是先渲染最顶层的节点
          * 2、如果节点还有子节点，交给子节点自己处理
          */
-
         return (<ul
             class="ant-tree tree"
             role="tree-node"
