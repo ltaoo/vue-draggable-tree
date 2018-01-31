@@ -268,14 +268,16 @@ export default Vue.component('Tree', {
                     this.beforeInsert('insert', ar, i, dragObj);
                     return;
                 }
+                if (ar.indexOf(dragObj) > -1) {
+                    deleteIndex += 1;
+                }
                 // 如果是放到下边缘
                 if (dropPosition === 1) {
                     ar.splice(i + 1, 0, dragObj);
-                    hasDragObjArr.splice(deleteIndex, 1);
                 } else {
                     ar.splice(i, 0, dragObj);
-                    hasDragObjArr.splice(deleteIndex, 1);
                 }
+                hasDragObjArr.splice(deleteIndex, 1);
             } else {
                 // 成为子节点
                 sourceLoop(data, dropKey, (item) => {
