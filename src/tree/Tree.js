@@ -241,7 +241,6 @@ export default Vue.component('Tree', {
             const dropPosition =
                 res.dropPosition - Number(dropPos[dropPos.length - 1]);
             // const dragNodesKeys = info.dragNodesKeys;
-
             // 浅拷贝
             const data = [...this.data];
             let dragObj;
@@ -251,6 +250,7 @@ export default Vue.component('Tree', {
                 // 保存正在拖拽的节点所在 children
                 hasDragObjArr = arr;
                 deleteIndex = index;
+                // 移除拖动的节点
                 // hasDragObjArr.splice(index, 1);
                 dragObj = item;
             });
@@ -259,25 +259,27 @@ export default Vue.component('Tree', {
                 // 如果是在两个节点之间
                 let ar;
                 let i;
-                // 寻找放置的那个节点对应的数组，保存为 ar
+                if (this.beforeInsert) {
+                    // 寻找放置的那个节点对应的数组，保存为 ar
+                    sourceLoop(data, dropKey, (item, index, arr) => {
+                        ar = arr;
+                        i = index;
+                    });
+                    this.beforeInsert('insert', ar, i, dragObj);
+                    return;
+                }
+                hasDragObjArr.splice(deleteIndex, 1);
+                // 移除后重新计算
                 sourceLoop(data, dropKey, (item, index, arr) => {
                     ar = arr;
                     i = index;
                 });
-                if (this.beforeInsert) {
-                    this.beforeInsert('insert', ar, i, dragObj);
-                    return;
-                }
-                if (ar.indexOf(dragObj) > -1) {
-                    deleteIndex += 1;
-                }
                 // 如果是放到下边缘
                 if (dropPosition === 1) {
                     ar.splice(i + 1, 0, dragObj);
                 } else {
                     ar.splice(i, 0, dragObj);
                 }
-                hasDragObjArr.splice(deleteIndex, 1);
             } else {
                 // 成为子节点
                 sourceLoop(data, dropKey, (item) => {

@@ -205,7 +205,7 @@ export default {
                 // 保存正在拖拽的节点所在 children
                 hasDragObjArr = arr;
                 deleteIndex = index;
-                // hasDragObjArr.splice(index, 1);
+                hasDragObjArr.splice(index, 1);
                 dragObj = item;
             });
             // 然后处理应该放到哪里
@@ -218,20 +218,12 @@ export default {
                     ar = arr;
                     i = index;
                 });
-                if (this.beforeInsert) {
-                    this.beforeInsert('insert', ar, i, dragObj);
-                    return;
-                }
-                if (ar.indexOf(dragObj) > -1) {
-                    deleteIndex += 1;
-                }
                 // 如果是放到下边缘
                 if (dropPosition === 1) {
                     ar.splice(i + 1, 0, dragObj);
                 } else {
                     ar.splice(i, 0, dragObj);
                 }
-                hasDragObjArr.splice(deleteIndex, 1);
             } else {
                 // 成为子节点
                 sourceLoop(data, dropKey, (item) => {
