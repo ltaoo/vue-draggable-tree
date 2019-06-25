@@ -88,49 +88,49 @@ export default Vue.component('Tree', {
     },
     methods: {
         /**
-         * render single tree node
-         * @param {SourceNode} child - 要渲染的节点
-         * @param {number} index - 遍历时的 index
-         * @return VNode
+         * every tree node is rendered by this method
+         * @param {FormattedSourceNode} formattedSourceNode
+         * @param {number} index - map index
+         * @return {VNode}
          */
-        renderTreeNode(child, index) {
-            // 这里的值都是在 loop 时挂载到 VNode 上的
+        renderTreeNode(formattedSourceNode, index, createElement) {
             const {
-                rckey,
-                level,
+                key,
                 title,
+                level,
                 source,
                 children,
-            } = child.data;
-            // 给每个节点一个唯一值，同时也是表示位置
+            } = formattedSourceNode;
+            // the position of node
             const pos = `${level}-${index}`;
-            const key = rckey;
 
-            // 根据这三个状态，来显示拖动时的交互
+            // the flag show node status(at node top or bottom) when drag
             const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
             const dragOverGapBottom = this.dragOverNodeKey === key && this.dropPosition === 1;
             const dragOver = this.dragOverNodeKey === key && this.dropPosition === 0;
 
-            // 展开状态
+            // is expend
             const expanded = this.expandedKeys.indexOf(key) !== -1;
 
-            return (
-                <TreeNode
-                    rckey={key}
-                    title={title}
-                    root={this}
-                    pos={pos}
-                    children={children}
-                    eventKey={key}
-                    dragOver={dragOver}
-                    dragOverGapTop={dragOverGapTop}
-                    dragOverGapBottom={dragOverGapBottom}
-                    source={source}
-                    template={this.template}
-                    draggable={this.draggable}
-                    expanded={expanded}
-                />
-            );
+            return createElement(TreeNode, {
+                props: {
+                    rckey: key,
+                    title,
+                    // pass tree root instance to child
+                    root: this,
+                    pos,
+                    children,
+                    eventKey: key,
+                    dragOver,
+                    dragOverGapTop,
+                    dragOverGapBottom,
+                    source,
+                    template: this.template,
+                    draggable: this.draggable,
+                    expanded,
+                    createElement,
+                },
+            });
         },
         /**
          * 获得当前正在拖拽的节点 key 集合（节点与其子节点
@@ -360,8 +360,8 @@ export default Vue.component('Tree', {
                 role="tree-node"
                 unselectable="on"
             >
-                {formattedSourceNodes.map((child, i) => {
-                    return this.renderTreeNode(child, i);
+                {formattedSourceNodes.map((formattedSourceNode, i) => {
+                    return this.renderTreeNode(formattedSourceNode, i, h);
                 })}
             </ul>
         );

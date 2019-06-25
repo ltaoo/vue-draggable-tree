@@ -8,7 +8,7 @@ export function noop() {}
  * }
  * interface FormattedSourceNode {
  *  id: number;
- *  rckey: string;
+ *  key: string;
  *  level: NodeLevel;
  *  children?: Array<FormattedSourceNode>;
  * }
@@ -25,7 +25,7 @@ export const formatSourceNodes = (
 ) => sourceNodes.map((sourceNode, i) => {
     const formattedSourceNode = {
         index: i,
-        rckey: sourceNode.key,
+        key: sourceNode.key,
         title: sourceNode.title,
         level,
         source: sourceNode,

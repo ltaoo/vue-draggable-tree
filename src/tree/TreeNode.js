@@ -32,7 +32,7 @@ const TreeNode = Vue.component('TreeNode', {
         root: {
             type: Object,
         },
-        vChildren: {
+        children: {
             type: Array,
         },
         eventKey: {
@@ -53,6 +53,9 @@ const TreeNode = Vue.component('TreeNode', {
         expanded: {
             type: Boolean,
         },
+        createElement: {
+            type: Function,
+        },
     },
     data() {
         this.isTreeNode = true;
@@ -72,13 +75,12 @@ const TreeNode = Vue.component('TreeNode', {
          * 渲染子节点
          */
         renderChildren() {
-            const { expanded } = this;
+            const { expanded, children, createElement } = this;
             let newchildren = null;
-            const vChildren = this.vChildren;
-            if (vChildren && !expanded) {
+            if (children && !expanded) {
                 newchildren = <ul class="ivu-tree-children">
-                    {vChildren.map((vnode, i) =>
-                        this.root.renderTreeNode(vnode, i),
+                    {children.map((formattedSourceNode, i) =>
+                        this.root.renderTreeNode(formattedSourceNode, i, createElement),
                     )}
                 </ul>;
             }
