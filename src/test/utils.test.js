@@ -1,6 +1,5 @@
 import { traverseTreeNodes, formatSourceNodes } from '../tree/utils';
 
-/* eslint-disable */
 describe('util function', () => {
     it('add extra props to source node', () => {
         const sourceNodes = [
@@ -57,7 +56,7 @@ describe('util function', () => {
     });
 
     it('traverse tree nodes', () => {
-        const mockTreeNode = {
+        const mockTreeNodes = [{
             rckey: '2-2',
             pos: '0-0-0',
             title: '科技',
@@ -73,10 +72,10 @@ describe('util function', () => {
                     title: 'JavaScript高级程序设计',
                 },
             ],
-        };
+        }];
         const callback = jest.fn();
 
-        traverseTreeNodes(mockTreeNode, callback);
+        traverseTreeNodes(mockTreeNodes, callback);
 
         expect(callback.mock.calls.length).toBe(2);
         // index

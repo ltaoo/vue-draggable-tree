@@ -28,7 +28,7 @@ export const formatSourceNodes = (
         key: sourceNode.key,
         title: sourceNode.title,
         level,
-        source: sourceNode,
+        // source: sourceNode,
     };
     if (sourceNode.children && sourceNode.children.length) {
         const newLevel = `${level}-0`;
