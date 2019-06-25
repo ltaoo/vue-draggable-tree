@@ -98,7 +98,7 @@ export default Vue.component('Tree', {
                 key,
                 title,
                 level,
-                source,
+                // source,
                 children,
             } = formattedSourceNode;
             // the position of node
@@ -124,7 +124,7 @@ export default Vue.component('Tree', {
                     dragOver,
                     dragOverGapTop,
                     dragOverGapBottom,
-                    source,
+                    // source,
                     template: this.template,
                     draggable: this.draggable,
                     expanded,

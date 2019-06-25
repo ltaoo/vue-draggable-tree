@@ -21,18 +21,22 @@ export function noop() {}
  */
 export const formatSourceNodes = (
     sourceNodes,
-    level = '0',
+    level = 1,
+    parentPos,
 ) => sourceNodes.map((sourceNode, i) => {
+    const { key, title } = sourceNode;
     const formattedSourceNode = {
-        index: i,
-        key: sourceNode.key,
-        title: sourceNode.title,
-        level,
-        // source: sourceNode,
+        key,
+        title,
+        pos: parentPos === undefined ? String(i) : `${parentPos}-${i}`,
     };
     if (sourceNode.children && sourceNode.children.length) {
-        const newLevel = `${level}-0`;
-        formattedSourceNode.children = formatSourceNodes(sourceNode.children, newLevel);
+        const nextLevel = level + 1;
+        formattedSourceNode.children = formatSourceNodes(
+            sourceNode.children,
+            nextLevel,
+            formattedSourceNode.pos,
+        );
     }
     return formattedSourceNode;
 });

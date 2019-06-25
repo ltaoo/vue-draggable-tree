@@ -23,6 +23,10 @@ describe('util function', () => {
                     },
                 ],
             },
+            {
+                key: 2,
+                title: '服装',
+            },
         ];
 
         const res = formatSourceNodes(sourceNodes);
@@ -51,6 +55,11 @@ describe('util function', () => {
                         ],
                     },
                 ],
+            },
+            {
+                key: 2,
+                pos: '1',
+                title: '服装',
             },
         ]);
     });
