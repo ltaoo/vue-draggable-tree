@@ -1,4 +1,8 @@
-import { traverseTreeNodes, formatSourceNodes } from '../tree/utils';
+import {
+    traverseTreeNodes,
+    formatSourceNodes,
+    getDraggingNodesKey,
+} from '../tree/utils';
 
 describe('util function', () => {
     it('add extra props to source node', () => {
@@ -65,7 +69,7 @@ describe('util function', () => {
     });
 
     it('traverse tree nodes', () => {
-        const mockTreeNodes = {
+        const mockTreeNode = {
             rckey: '2-2',
             pos: '0-0-0',
             isTreeNode: true,
@@ -87,7 +91,7 @@ describe('util function', () => {
         };
         const callback = jest.fn();
 
-        traverseTreeNodes(mockTreeNodes.$children, callback);
+        traverseTreeNodes(mockTreeNode.$children, callback);
 
         expect(callback.mock.calls.length).toBe(2);
         // index
@@ -99,5 +103,32 @@ describe('util function', () => {
         expect(callback.mock.calls[1][1]).toBe(1);
         expect(callback.mock.calls[1][2]).toBe('0-0-0-1');
         expect(callback.mock.calls[1][3]).toBe('2-2-1');
+    });
+
+    it('get dragging nodes key', () => {
+        const mockTreeNode = {
+            rckey: '2-2',
+            pos: '0-0-0',
+            isTreeNode: true,
+            title: '科技',
+            $children: [
+                {
+                    rckey: '2-2-0',
+                    isTreeNode: true,
+                    pos: '0-0-0-0',
+                    title: 'JavaScript权威指南',
+                },
+                {
+                    rckey: '2-2-1',
+                    isTreeNode: true,
+                    pos: '0-0-0-1',
+                    title: 'JavaScript高级程序设计',
+                },
+            ],
+        };
+
+        const res = getDraggingNodesKey(mockTreeNode);
+
+        expect(res).toEqual(['2-2-0', '2-2-1', '2-2']);
     });
 });

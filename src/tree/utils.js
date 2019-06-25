@@ -94,6 +94,33 @@ export function isInclude(smallArray, bigArray) {
 }
 
 /**
+ * get key and children's key of dragging node
+ * @param {VueComponent} treeNode - dragging node
+ * @return {Array<>}
+ */
+export function getDraggingNodesKey(treeNode) {
+    const dragNodesKeys = [];
+    // 拿到位置信息
+    const treeNodePosArr = treeNode.pos.split('-');
+    traverseTreeNodes(treeNode.$children, (item, index, pos, key) => {
+        const childPosArr = pos.split('-');
+        if (
+            (
+                treeNode.pos === pos ||
+                treeNodePosArr.length < childPosArr.length
+            )
+            && isInclude(treeNodePosArr, childPosArr)
+        ) {
+            // 正在拖拽的节点的“子孙节点”
+            dragNodesKeys.push(key);
+        }
+    });
+    // 再将正在拖拽的节点 key 放进来
+    dragNodesKeys.push(treeNode.rckey);
+    return dragNodesKeys;
+}
+
+/**
  * 获取位置信息
  * @param {*} ele
  */

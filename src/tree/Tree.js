@@ -6,10 +6,9 @@ import iViewTemplate from './iviewTemplate';
 import {
     noop,
     formatSourceNodes,
-    traverseTreeNodes,
-    isInclude,
     getOffset,
     sourceLoop,
+    getDraggingNodesKey,
 } from './utils';
 
 import './style.css';
@@ -132,39 +131,12 @@ export default Vue.component('Tree', {
             });
         },
         /**
-         * @TODO move to utils
-         * get key and children's key of dragging node
-         * @param {VueComponent} treeNode - dragging node
-         * @return {Array<>}
-         */
-        getDraggingNodesKey(treeNode) {
-            const dragNodesKeys = [];
-            // 拿到位置信息
-            const treeNodePosArr = treeNode.pos.split('-');
-            traverseTreeNodes(treeNode.$children, (item, index, pos, key) => {
-                const childPosArr = pos.split('-');
-                if (
-                    (
-                        treeNode.pos === pos ||
-                        treeNodePosArr.length < childPosArr.length
-                    )
-                    && isInclude(treeNodePosArr, childPosArr)
-                ) {
-                    // 正在拖拽的节点的“子孙节点”
-                    dragNodesKeys.push(key);
-                }
-            });
-            // 再将正在拖拽的节点 key 放进来
-            dragNodesKeys.push(treeNode.eventKey || treeNode.pos);
-            return dragNodesKeys;
-        },
-        /**
          * @param {Event} e
          * @param {VueComponent} treeNode - dragging node
          */
         handleStartDrag(e, treeNode) {
             this.draggingNode = treeNode;
-            this.dragNodesKeys = this.getDraggingNodesKey(treeNode);
+            this.dragNodesKeys = getDraggingNodesKey(treeNode);
             // 再暴露出开始拖动的参数
             this.onDragStart({
                 event: e,
