@@ -42,6 +42,7 @@ export const formatSourceNodes = (
 });
 
 /**
+ * collect node key and its children keys
  * @param {Array<VueComponent>} treeNodes
  * @param {function} callback
  */
