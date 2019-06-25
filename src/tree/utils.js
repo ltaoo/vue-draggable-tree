@@ -170,19 +170,25 @@ export function calcDropPosition(e, treeNode) {
 }
 
 /**
- * 遍历 data，节点对应的对象
- * @param {} data
- * @param {} key
- * @param {Function} callback
+ * @param {Array<SourceNode>} data
+ * @param {string} key
+ * @param {function} callback
  */
-export const sourceLoop = (data, key, callback) => {
-    data.forEach((item, index, arr) => {
-        if (item.key === key) {
-            return callback(item, index, arr);
+export const findSourceNodeByKey = (sourceNodes, key, callback) => {
+    sourceNodes.forEach((sourceNode, index, arr) => {
+        if (sourceNode.key === key) {
+            return callback(sourceNode, index, arr);
         }
-        if (item.children) {
-            return sourceLoop(item.children, key, callback);
+        if (sourceNode.children) {
+            return findSourceNodeByKey(sourceNode.children, key, callback);
         }
         return false;
     });
 };
+
+export function getUpdateInfo() {
+    return {
+        // insertToTop、insertToBottom、insertToContent
+        type: 'insertToTop',
+    };
+}

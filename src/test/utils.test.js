@@ -2,6 +2,7 @@ import {
     traverseTreeNodes,
     formatSourceNodes,
     getDraggingNodesKey,
+    findSourceNodeByKey,
 } from '../tree/utils';
 
 import customSourceNodes from './customData';
@@ -233,5 +234,54 @@ describe('util function', () => {
         const res = getDraggingNodesKey(mockTreeNode);
 
         expect(res).toEqual(['2-2-0', '2-2-1', '2-2']);
+    });
+
+    it('find source node by key', () => {
+        const sourceNodes = [
+            {
+                key: 0,
+                title: '图书',
+                children: [
+                    {
+                        key: 10,
+                        title: '科技',
+                        children: [
+                            {
+                                key: 101,
+                                title: 'JavaScript权威指南',
+                            },
+                            {
+                                key: 102,
+                                title: 'JavaScript高级程序设计',
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                key: 2,
+                title: '服装',
+            },
+        ];
+        const callback = jest.fn();
+
+        findSourceNodeByKey(sourceNodes, 101, callback);
+
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0]).toMatchObject({
+            key: 101,
+            title: 'JavaScript权威指南',
+        });
+        expect(callback.mock.calls[0][1]).toBe(0);
+        expect(callback.mock.calls[0][2]).toMatchObject([
+            {
+                key: 101,
+                title: 'JavaScript权威指南',
+            },
+            {
+                key: 102,
+                title: 'JavaScript高级程序设计',
+            },
+        ]);
     });
 });

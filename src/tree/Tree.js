@@ -6,7 +6,7 @@ import iViewTemplate from './iviewTemplate';
 import {
     noop,
     formatSourceNodes,
-    sourceLoop,
+    findSourceNodeByKey,
     getDraggingNodesKey,
     calcDropPosition,
 } from './utils';
@@ -121,7 +121,6 @@ export default Vue.component('Tree', {
                     dragOver,
                     dragOverGapTop,
                     dragOverGapBottom,
-                    // source,
                     template: this.template,
                     draggable: this.draggable,
                     expanded,
@@ -145,7 +144,7 @@ export default Vue.component('Tree', {
             const dropPosition = calcDropPosition(e, treeNode);
             // if dragging node is the entered node
             if (
-                this.draggingNode.eventKey === treeNode.eventKey
+                this.draggingNode.rckey === treeNode.rckey
                 && dropPosition === 0
             ) {
                 this.dragOverNodeKey = '';
@@ -168,17 +167,17 @@ export default Vue.component('Tree', {
          * @param {VueComponent} treeNode - dropped node
          */
         handleNodeDropped(e, treeNode) {
-            const { eventKey } = treeNode;
+            const { rckey, pos } = treeNode;
 
             this.dragOverNodeKey = '';
-            this.dropNodeKey = eventKey;
+            this.dropNodeKey = rckey;
             // if drop node to its child
-            if (this.dragNodesKeys.includes(eventKey)) {
+            if (this.dragNodesKeys.includes(rckey)) {
                 console.error('Can not drop to dragNode(include it\'s children node)');
                 return;
             }
 
-            const posArr = treeNode.pos.split('-');
+            const posArr = pos.split('-');
             const res = {
                 event: e,
                 node: treeNode,
@@ -194,69 +193,72 @@ export default Vue.component('Tree', {
                 return;
             }
 
-            // 目标节点
-            const dropKey = res.node.eventKey;
-            // 正在拖拽的节点
-            const dragKey = res.draggingNode.eventKey;
-            const dropPos = res.node.pos.split('-');
+            // target node key
+            const droppedNodeKey = rckey;
+            // dragging node key
+            const draggingNodeKey = this.draggingNode.rckey;
+            const dropPos = pos.split('-');
             const dropPosition =
                 res.dropPosition - Number(dropPos[dropPos.length - 1]);
-            // 浅拷贝
-            const data = [...this.data];
-            let dragObj;
-            let hasDragObjArr;
-            let deleteIndex;
-            sourceLoop(data, dragKey, (item, index, arr) => {
-                // 保存正在拖拽的节点所在 children
-                hasDragObjArr = arr;
-                deleteIndex = index;
-                // 移除拖动的节点
-                // hasDragObjArr.splice(index, 1);
-                dragObj = item;
+            // start change source node
+            const sourceNodes = [...this.data];
+            let draggingSourceNode;
+            let hasSomeLevelNodesWithDraggingNode;
+            let draggingNodeIndexAtSomeLevelNodes;
+            // first we find the dragging sourceNode
+            findSourceNodeByKey(sourceNodes, draggingNodeKey, (sourceNode, index, arr) => {
+                hasSomeLevelNodesWithDraggingNode = arr;
+                draggingNodeIndexAtSomeLevelNodes = index;
+                draggingSourceNode = sourceNode;
             });
-            // 然后处理应该放到哪里
             if (res.dropToGap) {
-                // 如果是在两个节点之间
-                let ar;
-                let i;
-                if (this.beforeInsert) {
-                    // 寻找放置的那个节点对应的数组，保存为 ar
-                    sourceLoop(data, dropKey, (item, index, arr) => {
-                        ar = arr;
-                        i = index;
-                    });
-                    this.beforeInsert('insert', ar, i, dragObj);
-                    return;
-                }
-                hasDragObjArr.splice(deleteIndex, 1);
-                // 移除后重新计算
-                sourceLoop(data, dropKey, (item, index, arr) => {
-                    ar = arr;
-                    i = index;
+                // if place to middle of two node
+                let hasSomeLevelNodesWithDrappedNode;
+                let droppedNodeIndexAtSomeLevelNodes;
+                // second we find target sourceNode
+                // if (this.beforeInsert) {
+                //     findSourceNodeByKey(sourceNodes, droppedNodeKey, (item, index, arr) => {
+                //         ar = arr;
+                //         i = index;
+                //     });
+                //     this.beforeInsert('insert', ar, i, dragObj);
+                //     return;
+                // }
+                // remove source node from same level nodes
+                hasSomeLevelNodesWithDraggingNode.splice(draggingNodeIndexAtSomeLevelNodes, 1);
+                findSourceNodeByKey(sourceNodes, droppedNodeKey, (item, index, arr) => {
+                    hasSomeLevelNodesWithDrappedNode = arr;
+                    droppedNodeIndexAtSomeLevelNodes = index;
                 });
-                // 如果是放到下边缘
+                // if place to target node bottom
                 if (dropPosition === 1) {
-                    ar.splice(i + 1, 0, dragObj);
+                    hasSomeLevelNodesWithDrappedNode.splice(
+                        droppedNodeIndexAtSomeLevelNodes + 1,
+                        0,
+                        draggingSourceNode,
+                    );
                 } else {
-                    ar.splice(i, 0, dragObj);
+                    // place to target node top
+                    hasSomeLevelNodesWithDrappedNode.splice(
+                        droppedNodeIndexAtSomeLevelNodes,
+                        0,
+                        draggingSourceNode,
+                    );
                 }
             } else {
-                // 成为子节点
-                sourceLoop(data, dropKey, (item) => {
-                    /* eslint-disable */
-                    item.children = item.children || [];
+                // place to target content, mean become child of target node
+                findSourceNodeByKey(sourceNodes, droppedNodeKey, (droppedSourceNode) => {
+                    /* eslint-disable no-param-reassign */
+                    droppedSourceNode.children = droppedSourceNode.children || [];
                     if (this.beforeInsert) {
-                        this.beforeInner('inner', item.children, dragObj);
+                        this.beforeInner('inner', droppedSourceNode.children, draggingSourceNode);
                         return;
                     }
-                    // where to insert 示例添加到尾部，可以是随意位置
-                    item.children.push(dragObj);
-                    hasDragObjArr.splice(deleteIndex, 1);
+                    droppedSourceNode.children.push(draggingSourceNode);
+                    hasSomeLevelNodesWithDraggingNode.splice(draggingNodeIndexAtSomeLevelNodes, 1);
                 });
             }
-            // this.data = data;
-            this.$emit('input', data);
-            // 完成插入之后
+            this.$emit('input', sourceNodes);
             if (this.afterInsert) {
                 this.afterInsert();
             }
@@ -298,9 +300,7 @@ export default Vue.component('Tree', {
                 role="tree-node"
                 unselectable="on"
             >
-                {formattedSourceNodes.map((formattedSourceNode, i) => {
-                    return this.renderTreeNode(formattedSourceNode, i);
-                })}
+                {formattedSourceNodes.map(this.renderTreeNode)}
             </ul>
         );
     },
