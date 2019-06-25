@@ -1,3 +1,4 @@
+export function noop() {}
 /**
  * 生成 VNode 组成的数组
  * @param {*} data

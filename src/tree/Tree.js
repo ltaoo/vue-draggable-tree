@@ -1,9 +1,10 @@
 import Vue from 'vue';
+
 import TreeNode from './TreeNode';
-// import DefaultTemplate from './defaultTemplate';
 import iViewTemplate from './iviewTemplate';
 
 import {
+    noop,
     loop,
     traverseTreeNodes,
     isInclude,
@@ -12,8 +13,6 @@ import {
 } from './utils';
 
 import './style.css';
-
-function foo() {}
 
 export default Vue.component('Tree', {
     props: {
@@ -33,30 +32,30 @@ export default Vue.component('Tree', {
         // 拖动结束事件
         onDragEnd: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         onDragEnter: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         onDragLeave: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         onDragOver: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         onDragStart: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         onDrop: {
             type: Function,
         },
         onExpand: {
             type: Function,
-            default: foo,
+            default: noop,
         },
         // 自定义子组件
         template: {
