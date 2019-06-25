@@ -139,29 +139,30 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         switcher() {
-            // const { prefixCls } = this;
             let state = '';
             if (this.source.children && this.source.children.length > 0) {
-                // 如果是开的
                 if (this.expanded) {
                     state += ' ivu-tree-arrow-open';
-                } else {
-                    state = '';
                 }
             }
-            // return <span onClick={this.onExpand}>{state}</span>;
-            return (<span
-                        onClick={this.onExpand}
-            class={`ivu-tree-arrow${state}`}>{(this.source.children && this.source.children.length) ? <img style="width: 16px; vertical-align: bottom;" src={arrow} /> : null}</span>);
+            return (
+                <span
+                    onClick={this.onExpand}
+                    class={`ivu-tree-arrow${state}`}
+                >
+                    {
+                        (this.source.children && this.source.children.length)
+                        ? <img style="width: 16px; vertical-align: bottom;" src={arrow} />
+                        : null
+                    }
+                </span>
+            );
         },
     },
     render(h) {
-        // 渲染可拖拽部分，标题
+        // render draggable part
         const selectHandle = () => {
-            // const { prefixCls } = this;
             const content = this.title;
-            // const title = <span class={`${prefixCls}-title`}>{content}</span>;
-
             const Component = this.template;
             return h('span', {
                 ref: 'selectHandle',
@@ -176,18 +177,17 @@ const TreeNode = Vue.component('TreeNode', {
                     drop: this.onDrop,
                     dragend: this.onDragEnd,
                 },
-            }, [h(Component, {
-                attrs: {
-                },
-                props: {
-                    title: content,
-                    node: this.source,
-                },
-            }, [])]);
+            }, [
+                h(Component, {
+                    attrs: {},
+                    props: {
+                        title: content,
+                        node: this.source,
+                    },
+                }, []),
+            ]);
         };
         // 当前位置
-        // const { prefixCls } = this;
-        // let disabledCls = '';
         let dragOverCls = '';
         if (this.disabled) {
             //   disabledCls = `${prefixCls}-treenode-disabled`;

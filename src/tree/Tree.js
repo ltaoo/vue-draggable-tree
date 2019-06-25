@@ -19,17 +19,15 @@ export default Vue.component('Tree', {
         value: {
             type: Array,
         },
-        // 是否自动展开节点
         autoExpandParent: {
             type: Boolean,
             default: true,
         },
-        // 是否可拖拽(IE > 8)
+        // IE > 8
         draggable: {
             type: Boolean,
             default: false,
         },
-        // 拖动结束事件
         onDragEnd: {
             type: Function,
             default: noop,
@@ -57,7 +55,7 @@ export default Vue.component('Tree', {
             type: Function,
             default: noop,
         },
-        // 自定义子组件
+        // custom children content
         template: {
             type: Function,
             default: iViewTemplate,
@@ -80,7 +78,6 @@ export default Vue.component('Tree', {
             dragOverNodeKey: '',
             // 拖动时的位置
             dropPosition: '',
-            // 展开的节点
             expandedKeys: [],
         };
     },
@@ -91,9 +88,9 @@ export default Vue.component('Tree', {
     },
     methods: {
         /**
-         * 渲染单个子节点
-         * @param {VNode} child 要渲染的节点
-         * @param {Number} index 遍历时的 index
+         * render single tree node
+         * @param {VNode} child - 要渲染的节点
+         * @param {number} index - 遍历时的 index
          */
         renderTreeNode(child, index) {
             // 这里的值都是在 loop 时挂载到 VNode 上的
@@ -116,21 +113,23 @@ export default Vue.component('Tree', {
             // 展开状态
             const expanded = this.expandedKeys.indexOf(key) !== -1;
 
-            return (<TreeNode
-                root={this}
-                title={title}
-                rckey={key}
-                pos={pos}
-                vChildren={vChildren}
-                eventKey={key}
-                dragOver={dragOver}
-                dragOverGapTop={dragOverGapTop}
-                dragOverGapBottom={dragOverGapBottom}
-                source={source}
-                template={this.template}
-                draggable={this.draggable}
-                expanded={expanded}
-            />);
+            return (
+                <TreeNode
+                    root={this}
+                    title={title}
+                    rckey={key}
+                    pos={pos}
+                    vChildren={vChildren}
+                    eventKey={key}
+                    dragOver={dragOver}
+                    dragOverGapTop={dragOverGapTop}
+                    dragOverGapBottom={dragOverGapBottom}
+                    source={source}
+                    template={this.template}
+                    draggable={this.draggable}
+                    expanded={expanded}
+                />
+            );
         },
         /**
          * 获得当前正在拖拽的节点 key 集合（节点与其子节点
@@ -349,18 +348,23 @@ export default Vue.component('Tree', {
         },
     },
     render(h) {
-        // 得到的 children 是 VNode
         const vChildren = loop(this.data, h, TreeNode);
         /**
-         * 1、一定是先渲染最顶层的节点
-         * 2、如果节点还有子节点，交给子节点自己处理
+         * 1、first render root node
+         * 2、if node has children, render by itself
          */
-        return (<ul
-            class="ant-tree tree"
-            role="tree-node"
-            unselectable="on"
-        >
-            {vChildren.map((child, i) => this.renderTreeNode(child, i))}
-        </ul>);
+        return (
+            <ul
+                class="ant-tree tree"
+                role="tree-node"
+                unselectable="on"
+            >
+                {vChildren.map((child, i) => {
+                    const res = this.renderTreeNode(child, i);
+                    console.log(res);
+                    return res;
+                })}
+            </ul>
+        );
     },
 });

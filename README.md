@@ -138,6 +138,53 @@ onExpand | 展开/收起节点时触发 | function({event, node}) | -
 afterInsert | 在节点插入到指定位置后调用 | function() | -
 template | 自定义节点内容 | VueComponent | -
 
+## 说明
+树组件，分为两部分吧，首先是渲染，其次是渲染后处理拖动。
+
+### render
+渲染其实比较简单，首先我们有「元数据」，我们定义下接口
+
+```typescript
+interface SourceNode {
+    key: string;
+    title: string;
+    children?: Array<SourceNode>;
+    [propName: string]: any;
+}
+```
+
+`key` 需要是唯一值。然后根据这个元数据生成 `vnode`，`Tree` 组件要求 `data` 是数组，所以是生成了 `vnode` 组成的数组。
+再使用 `this.renderTreeNode` 真正地去渲染。
+
+```vue
+// vChildren Array<VNode>，h createElement
+const vChildren = loop(this.data, h, TreeNode);
+<ul
+    class="ant-tree tree"
+    role="tree-node"
+    unselectable="on"
+>
+    {vChildren.map((child, i) => this.renderTreeNode(child, i))}
+</ul>
+```
+
+`VNode` 的接口长什么样呢？
+
+```js
+interface VNode {
+    tag: string;
+    data: Object;
+    children: Array<VNode>;
+    // ...
+}
+```
+
+在 `React` 中，`JSX` 其实是创建 `React Element` 的语法糖，这里也是类似，
+
+参考 [渲染函数 & JSX](https://cn.vuejs.org/v2/guide/render-function.html#JSX)
+
+### drop
+
 ## todo
 
 - 增加 checkbox

@@ -1,23 +1,31 @@
 export function noop() {}
 /**
  * 生成 VNode 组成的数组
- * @param {*} data
+ * @param {Array} data
+ * @param {function} h - render function
+ * @param {VueComponent} Component
+ * @param {string} [level='0']
+ * @return {Array<VNode>}
  */
-export const loop = (data, h, component, level = '0') =>
-    data.map((item, i) => {
-        const props = {
-            index: i,
-            rckey: item.key,
-            title: item.title,
-            level,
-            source: item,
-        };
-        if (item.children && item.children.length) {
-            const newLevel = `${level}-0`;
-            props.vChildren = loop(item.children, h, component, newLevel);
-        }
-        return h(component, props, []);
-    });
+export const loop = (
+    data,
+    h,
+    Component,
+    level = '0',
+) => data.map((item, i) => {
+    const props = {
+        index: i,
+        rckey: item.key,
+        title: item.title,
+        level,
+        source: item,
+    };
+    if (item.children && item.children.length) {
+        const newLevel = `${level}-0`;
+        props.vChildren = loop(item.children, h, Component, newLevel);
+    }
+    return h(Component, props, []);
+});
 
 /**
  *
