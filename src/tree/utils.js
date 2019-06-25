@@ -24,8 +24,9 @@ export const formatSourceNodes = (
     level = 1,
     parentPos,
 ) => sourceNodes.map((sourceNode, i) => {
-    const { key, title } = sourceNode;
+    const { key, title, ...restProps } = sourceNode;
     const formattedSourceNode = {
+        ...restProps,
         key,
         title,
         pos: parentPos === undefined ? String(i) : `${parentPos}-${i}`,

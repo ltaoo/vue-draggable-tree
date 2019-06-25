@@ -76,8 +76,8 @@ const TreeNode = Vue.component('TreeNode', {
             let newchildren = null;
             if (children && !expanded) {
                 newchildren = <ul class="ivu-tree-children">
-                    {children.map((formattedSourceNode, i) =>
-                        this.root.renderTreeNode(formattedSourceNode, i),
+                    {children.map(formattedSourceNode =>
+                        this.root.renderTreeNode(formattedSourceNode),
                     )}
                 </ul>;
             }
@@ -144,7 +144,7 @@ const TreeNode = Vue.component('TreeNode', {
         },
         switcher() {
             let state = '';
-            if (this.source.children && this.source.children.length > 0) {
+            if (this.children && this.children.length > 0) {
                 if (this.expanded) {
                     state += ' ivu-tree-arrow-open';
                 }
@@ -155,7 +155,7 @@ const TreeNode = Vue.component('TreeNode', {
                     class={`ivu-tree-arrow${state}`}
                 >
                     {
-                        (this.source.children && this.source.children.length)
+                        (this.children && this.children.length)
                         ? <img style="width: 16px; vertical-align: bottom;" src={arrow} />
                         : null
                     }

@@ -92,16 +92,14 @@ export default Vue.component('Tree', {
          * @param {number} index - map index
          * @return {VNode}
          */
-        renderTreeNode(formattedSourceNode, index) {
+        renderTreeNode(formattedSourceNode) {
             const {
                 key,
                 title,
-                level,
-                // source,
+                pos,
                 children,
             } = formattedSourceNode;
             // the position of node
-            const pos = `${level}-${index}`;
 
             // the flag show node status(at node top or bottom) when drag
             const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
