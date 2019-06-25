@@ -53,9 +53,6 @@ const TreeNode = Vue.component('TreeNode', {
         expanded: {
             type: Boolean,
         },
-        createElement: {
-            type: Function,
-        },
     },
     data() {
         this.isTreeNode = true;
@@ -75,12 +72,12 @@ const TreeNode = Vue.component('TreeNode', {
          * 渲染子节点
          */
         renderChildren() {
-            const { expanded, children, createElement } = this;
+            const { expanded, children } = this;
             let newchildren = null;
             if (children && !expanded) {
                 newchildren = <ul class="ivu-tree-children">
                     {children.map((formattedSourceNode, i) =>
-                        this.root.renderTreeNode(formattedSourceNode, i, createElement),
+                        this.root.renderTreeNode(formattedSourceNode, i),
                     )}
                 </ul>;
             }
@@ -90,9 +87,10 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.onSelect(this);
         },
         onDragStart(e) {
+            console.log(this.title, 'drag start');
             e.stopPropagation();
             this.dragNodeHighlight = true;
-            this.root.dragStart(e, this);
+            this.root.handleStartDrag(e, this);
             try {
                 // ie throw error
                 // firefox-need-it
@@ -102,24 +100,28 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         onDragEnter(e) {
+            console.log(this.title, 'drag enter', e.target);
             e.preventDefault();
             e.stopPropagation();
-            this.root.dragEnter(e, this);
+            this.root.handleNodeEntered(e, this);
         },
         onDragOver(e) {
+            console.log(this.title, 'drag over', e.target);
             e.preventDefault();
             e.stopPropagation();
-            this.root.dragOver(e, this);
+            this.root.handleNodeCrossed(e, this);
         },
         onDragLeave(e) {
+            console.log(this.title, 'drag leave', e.target);
             e.stopPropagation();
-            this.root.dragLeave(e, this);
+            this.root.handleNodeLeaved(e, this);
         },
         onDrop(e) {
+            console.log(this.title, 'drop', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            this.root.drop(e, this);
+            this.root.handleNodeDropped(e, this);
         },
         onDragEnd(e) {
             e.stopPropagation();

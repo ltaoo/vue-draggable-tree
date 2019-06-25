@@ -184,7 +184,25 @@ interface VNode {
 参考 [渲染函数 & JSX](https://cn.vuejs.org/v2/guide/render-function.html#JSX)
 
 ### drop
-该组件核心概念在于，所有 `TreeNode`，无论层级多深，都是由 `Tree` 这个根组件去管理。
+该组件核心概念在于，所有 `TreeNode`，无论层级多深，都是由 `Tree` 这个根组件去管理。每个节点有「位置」属性，类似 0、0-0 这样，个数表示层级，第二位数字表示在该层级的位置，如 '0-1' 表示第一层级的第二个节点。
+
+```js
+- 图书
+    - 经管
+        - 创京东
+        - 参与感
+- 服装 <----- 这个节点就是 0-1
+```
+
+当拖动 `Node` 时，会触发相关事件
+
+- dragstart
+- dragenter
+- dragover
+- drop
+- dragend
+
+`dragstart`，当拖动节点时调用；`dragenter`，当拖动时「被进入」节点触发，举例，拖动「三体」到「经管」这个 `node` 时，触发 `dragenter` 的是「经管」节点，而不是「三体」节点；
 
 ## todo
 

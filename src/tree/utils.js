@@ -38,44 +38,52 @@ export const formatSourceNodes = (
 });
 
 /**
- *
- * @param {[VueComponent]} treeNodes
- * @param {Function} callback
+ * @param {Array<VueComponent>} treeNodes
+ * @param {function} callback
  */
 export function traverseTreeNodes(treeNodes = [], callback) {
-    const traverse = (subTreeNodes, level, parentsChildrenPos, parentPos) => {
+    /**
+     * @param {Array<VueComponent>} subTreeNodes
+     * @param {number} level
+     * @param {Array<>} parentsChildrenPos
+     * @param {number} parentPos
+     */
+    function traverse(subTreeNodes, level, parentsChildrenPos, parentPos) {
         let newSubTreeNodes = subTreeNodes;
         if (subTreeNodes && subTreeNodes.length) {
-            newSubTreeNodes = subTreeNodes.filter(item => !!item);
+            newSubTreeNodes = subTreeNodes.filter(Boolean);
         }
 
-        // 真正开始遍历传进来的 VueComponents
-        newSubTreeNodes.forEach((item, index) => {
-            if (!item.isTreeNode) {
+        newSubTreeNodes.forEach((treeNode, index) => {
+            if (!treeNode.isTreeNode) {
                 return;
             }
-            // const pos = `${level}-${index}`;
-            const pos = item.pos;
-            parentsChildrenPos.push(pos); // Note: side effect
+            const { pos } = treeNode;
+            // Note: side effect
+            parentsChildrenPos.push(pos);
 
             const childrenPos = [];
-            // if (item.$children && item.type && item.type.isTreeNode) {
-            if (item.$children) {
-                traverse(item.$children, pos, childrenPos, pos);
+            if (treeNode.$children) {
+                traverse(treeNode.$children, pos, childrenPos, pos);
             }
             callback(
-                item,
+                treeNode,
                 index,
                 pos,
-                item.rckey || pos,
+                treeNode.rckey || pos,
                 childrenPos,
                 parentPos,
             );
         });
-    };
-    // call traverse
+    }
     traverse(treeNodes, 0, []);
 }
+
+/**
+ *
+ * @param {*} smallArray
+ * @param {*} bigArray
+ */
 export function isInclude(smallArray, bigArray) {
     return smallArray.every((item, index) => item === bigArray[index]);
 }
