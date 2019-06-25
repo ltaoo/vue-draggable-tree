@@ -5,7 +5,7 @@ import iViewTemplate from './iviewTemplate';
 
 import {
     noop,
-    loop,
+    formatSourceNodes,
     traverseTreeNodes,
     isInclude,
     getOffset,
@@ -89,17 +89,18 @@ export default Vue.component('Tree', {
     methods: {
         /**
          * render single tree node
-         * @param {VNode} child - 要渲染的节点
+         * @param {SourceNode} child - 要渲染的节点
          * @param {number} index - 遍历时的 index
+         * @return VNode
          */
         renderTreeNode(child, index) {
             // 这里的值都是在 loop 时挂载到 VNode 上的
             const {
-                vChildren,
                 rckey,
                 level,
                 title,
                 source,
+                children,
             } = child.data;
             // 给每个节点一个唯一值，同时也是表示位置
             const pos = `${level}-${index}`;
@@ -115,11 +116,11 @@ export default Vue.component('Tree', {
 
             return (
                 <TreeNode
-                    root={this}
-                    title={title}
                     rckey={key}
+                    title={title}
+                    root={this}
                     pos={pos}
-                    vChildren={vChildren}
+                    children={children}
                     eventKey={key}
                     dragOver={dragOver}
                     dragOverGapTop={dragOverGapTop}
@@ -348,7 +349,7 @@ export default Vue.component('Tree', {
         },
     },
     render(h) {
-        const vChildren = loop(this.data, h, TreeNode);
+        const formattedSourceNodes = formatSourceNodes(this.data);
         /**
          * 1、first render root node
          * 2、if node has children, render by itself
@@ -359,10 +360,8 @@ export default Vue.component('Tree', {
                 role="tree-node"
                 unselectable="on"
             >
-                {vChildren.map((child, i) => {
-                    const res = this.renderTreeNode(child, i);
-                    console.log(res);
-                    return res;
+                {formattedSourceNodes.map((child, i) => {
+                    return this.renderTreeNode(child, i);
                 })}
             </ul>
         );

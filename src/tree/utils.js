@@ -1,30 +1,40 @@
 export function noop() {}
 /**
- * 生成 VNode 组成的数组
- * @param {Array} data
- * @param {function} h - render function
- * @param {VueComponent} Component
- * @param {string} [level='0']
- * @return {Array<VNode>}
+ * type NodeLevel = string; // like 0、0-0、0-1、0-0-0
+ * interface SourceNode {
+ *  key: string;
+ *  title: string;
+ *  children: Array<SourceNode>;
+ * }
+ * interface FormattedSourceNode {
+ *  id: number;
+ *  rckey: string;
+ *  level: NodeLevel;
+ *  children?: Array<FormattedSourceNode>;
+ * }
  */
-export const loop = (
-    data,
-    h,
-    Component,
+/**
+ * add some key to sourceNode
+ * @param {Array<SourceNode>} data
+ * @param {string} [level='0'] - level at tree
+ * @return {Array<FormattedSourceNode>}
+ */
+export const formatSourceNodes = (
+    sourceNodes,
     level = '0',
-) => data.map((item, i) => {
-    const props = {
+) => sourceNodes.map((sourceNode, i) => {
+    const formattedSourceNode = {
         index: i,
-        rckey: item.key,
-        title: item.title,
+        rckey: sourceNode.key,
+        title: sourceNode.title,
         level,
-        source: item,
+        source: sourceNode,
     };
-    if (item.children && item.children.length) {
+    if (sourceNode.children && sourceNode.children.length) {
         const newLevel = `${level}-0`;
-        props.vChildren = loop(item.children, h, Component, newLevel);
+        formattedSourceNode.children = formatSourceNodes(sourceNode.children, newLevel);
     }
-    return h(Component, props, []);
+    return formattedSourceNode;
 });
 
 /**

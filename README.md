@@ -184,6 +184,7 @@ interface VNode {
 参考 [渲染函数 & JSX](https://cn.vuejs.org/v2/guide/render-function.html#JSX)
 
 ### drop
+该组件核心概念在于，所有 `TreeNode`，无论层级多深，都是由 `Tree` 这个根组件去管理。
 
 ## todo
 
