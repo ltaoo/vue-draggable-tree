@@ -121,8 +121,8 @@ export function getDraggingNodesKey(treeNode) {
 }
 
 /**
- * 获取位置信息
- * @param {*} ele
+ * get node position info
+ * @param {Element} ele
  */
 export function getOffset(ele) {
     if (!ele.getClientRects().length) {
@@ -142,6 +142,30 @@ export function getOffset(ele) {
     }
 
     return rect;
+}
+
+/**
+ * @param {Event} e
+ * @param {VueComponent} treeNode 鼠标移动过程中进入的节点
+ * @return {Number}
+ */
+export function calcDropPosition(e, treeNode) {
+    const { selectHandle } = treeNode.$refs;
+    const offsetTop = getOffset(selectHandle).top;
+    const offsetHeight = selectHandle.offsetHeight;
+    const pageY = e.pageY;
+    // TODO: remove hard code
+    const gapHeight = 2;
+    // 如果是靠近下边缘，就返回 1
+    if (pageY > (offsetTop + offsetHeight) - gapHeight) {
+        return 1;
+    }
+    // 如果是靠近上边缘，就返回 -1
+    if (pageY < offsetTop + gapHeight) {
+        return -1;
+    }
+    // 否则就返回 0，表示在节点内部
+    return 0;
 }
 
 /**

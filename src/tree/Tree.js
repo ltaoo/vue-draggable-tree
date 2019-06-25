@@ -6,9 +6,9 @@ import iViewTemplate from './iviewTemplate';
 import {
     noop,
     formatSourceNodes,
-    getOffset,
     sourceLoop,
     getDraggingNodesKey,
+    calcDropPosition,
 } from './utils';
 
 import './style.css';
@@ -137,7 +137,6 @@ export default Vue.component('Tree', {
         handleStartDrag(e, treeNode) {
             this.draggingNode = treeNode;
             this.dragNodesKeys = getDraggingNodesKey(treeNode);
-            // 再暴露出开始拖动的参数
             this.onDragStart({
                 event: e,
                 node: treeNode,
@@ -145,7 +144,7 @@ export default Vue.component('Tree', {
         },
         handleNodeEntered(e, treeNode) {
             // get the position to be place
-            const dropPosition = this.calcDropPosition(e, treeNode);
+            const dropPosition = calcDropPosition(e, treeNode);
             // if dragging node is the entered node
             if (
                 this.draggingNode.eventKey === treeNode.eventKey
@@ -268,30 +267,7 @@ export default Vue.component('Tree', {
             this.dragOverNodeKey = '';
             this.$emit('dragEnd', this.data, treeNode, e);
         },
-        /**
-         * @TODO move to utils
-         * @param {Event} e
-         * @param {VueComponent} treeNode 鼠标移动过程中进入的节点
-         * @return {Number}
-         */
-        calcDropPosition(e, treeNode) {
-            const selectHandle = treeNode.$refs.selectHandle;
-            const offsetTop = getOffset(selectHandle).top;
-            const offsetHeight = selectHandle.offsetHeight;
-            const pageY = e.pageY;
-            // 敏感度
-            const gapHeight = 2; // TODO: remove hard code
-            // 如果是靠近下边缘，就返回 1
-            if (pageY > (offsetTop + offsetHeight) - gapHeight) {
-                return 1;
-            }
-            // 如果是靠近上边缘，就返回 -1
-            if (pageY < offsetTop + gapHeight) {
-                return -1;
-            }
-            // 否则就返回 0，表示在节点内部
-            return 0;
-        },
+
         /**
          *
          * @param {VueComponent} treeNode 切换展开状态的节点
