@@ -265,7 +265,7 @@ export function computeMoveNeededParams(
 }
 
 /**
- *
+ * param reassign, no return
  * @param {number} targetSourceNodeIndex
  * @param {Array<SourceNode>} targetSourceNodes
  * @param {SourceNode} originSourceNode
@@ -307,7 +307,7 @@ export function insertToTop(
 }
 
 /**
- *
+ * param reassign, no return
  * @param {number} targetSourceNodeIndex
  * @param {Array<SourceNode>} targetSourceNodes
  * @param {SourceNode} originSourceNode

@@ -10,15 +10,13 @@
 
 <script>
 import Vue from 'vue';
-import Tree from '../tree';
-
-import {
+import Tree, {
     findSourceNodeByKey,
     computeMoveNeededParams,
-} from '../tree/utils';
-import {
+    insertToTop,
+    insertToBottom,
     TARGET_POSITION_TYPE,
-} from '../tree/constants';
+} from '../tree';
 
 const EXAMPLE_DATA = [
     {
@@ -110,31 +108,29 @@ export default {
         Tree,
     },
     data() {
-        // 保存 this
         const self = this;
         // new node template
         this.template = Vue.component('custom-tree-node', {
             props: ['title', 'node'],
             render() {
-                // 这个组件接收 title 和 node，node 就是真实渲染节点的那个 obj
                 const btnStyle = 'margin-left: 10px; cursor: pointer;';
                 const addBtn = (
                     <span
                         style={btnStyle}
                         onClick={self.addNode.bind(self, this.node)}
-                    >+</span>
+                    >新增</span>
                 );
                 const editBtn = (
                     <span
                         style={btnStyle}
                         onClick={self.editNode.bind(self, this.node)}
-                    >#</span>
+                    >编辑</span>
                 );
                 const deleteBtn = (
                     <span
                         style={btnStyle}
                         onClick={self.deleteNode.bind(self, this.node)}
-                    >-</span>
+                    >删除</span>
                 );
                 const titleStyle = this.node.highlight ? 'color: red;' : '';
                 return (
@@ -155,34 +151,27 @@ export default {
         afterInsert() {
             console.log(this.data);
         },
-        /**
-         * 增加节点
-         */
         addNode(node) {
-            if (!node.children) {
-                // 由于开始并没有 children 属性，所以直接添加并不会触发重新渲染，必须使用 Vue.set
-                Vue.set(node, 'children', []);
-            }
-            node.children.push({
-                key: Math.random(),
-                title: 'new node',
-                children: [],
+            findSourceNodeByKey(this.data, node.key, (item) => {
+                if (!item.children) {
+                    Vue.set(item, 'children', []);
+                }
+                item.children.push({
+                    key: Math.random(),
+                    title: 'new node',
+                    children: [],
+                });
             });
         },
-        /**
-         * 编辑节点
-         */
         editNode(node) {
+            /* eslint-disable no-param-reassign */
             const newValue = window.prompt('请输入新标题');
             if (newValue) {
-                /* eslint-disable */
-                node.title = newValue;
-                /* eslint-enable */
+                findSourceNodeByKey(this.data, node.key, (item) => {
+                    item.title = newValue;
+                });
             }
         },
-        /**
-         * 删除节点
-         */
         deleteNode(node) {
             // 要找到父节点
             findSourceNodeByKey(this.data, node.key, (item, index, arr) => {
@@ -223,9 +212,6 @@ export default {
                 targetNodeKey,
                 targetPosition,
             );
-            console.log(targetPosition);
-            // console.log(originSourceNode.title, targetPosition, targetSourceNode.title);
-            // insert to content
             if (targetPosition === TARGET_POSITION_TYPE.CONTENT) {
                 targetSourceNode.children = targetSourceNode.children || [];
                 targetSourceNode.children.push(originSourceNode);
@@ -234,35 +220,22 @@ export default {
                     1,
                 );
             }
-            // move to top
             if (targetPosition === TARGET_POSITION_TYPE.TOP) {
-                console.log(
-                    originSourceNode.title,
-                    targetPosition,
-                    targetSourceNodes,
+                insertToTop(
                     targetSourceNodeIndex,
-                );
-                originSourceNodes.splice(originSourceNodeIndex, 1);
-                targetSourceNodes.splice(
-                    targetSourceNodeIndex + 1,
-                    0,
+                    targetSourceNodes,
                     originSourceNode,
+                    originSourceNodeIndex,
+                    originSourceNodes,
                 );
             }
-            // move to bottom
             if (targetPosition === TARGET_POSITION_TYPE.BOTTOM) {
-                console.log(
-                    originSourceNode.title,
-                    targetPosition,
+                insertToBottom(
+                    targetSourceNodeIndex,
                     targetSourceNodes,
-                    targetSourceNodeIndex,
-                );
-                originSourceNodes.splice(originSourceNodeIndex, 1);
-                // place to target node top
-                targetSourceNodes.splice(
-                    targetSourceNodeIndex,
-                    0,
                     originSourceNode,
+                    originSourceNodeIndex,
+                    originSourceNodes,
                 );
             }
         },
