@@ -16,6 +16,13 @@
             </div>
             <a href="https://github.com/ltaoo/vue-draggable-tree/blob/master/examples/custom.vue">代码</a>
         </div>
+        <div>
+            <h2>展示全部的 hook</h2>
+            <div>
+                <Hooks />
+            </div>
+            <a href="https://github.com/ltaoo/vue-draggable-tree/blob/master/examples/custom.vue">代码</a>
+        </div>
     </div>
 </template>
 
@@ -24,6 +31,7 @@ import Highlight from './Highlight';
 
 import Basic from './basic';
 import Custom from './custom';
+import Hooks from './hooks';
 
 export default {
     name: 'vue-draggable-tree-demo',
@@ -31,13 +39,12 @@ export default {
         Highlight,
         Basic,
         Custom,
+        Hooks,
     },
     data() {
         return {
             name: 'demo',
         };
-    },
-    computed: {
     },
 };
 </script>

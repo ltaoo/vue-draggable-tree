@@ -163,6 +163,10 @@ export default Vue.component('Tree', {
 
             this.dragOverNodeKey = treeNode.rckey;
             this.dropPosition = dropPosition;
+            this.onDragEnter({
+                event: e,
+                node: treeNode,
+            });
         },
         handleNodeCrossed(e, treeNode) {
             this.onDragOver({ event: e, node: treeNode });
@@ -269,9 +273,9 @@ export default Vue.component('Tree', {
                 this.afterInsert();
             }
         },
-        dragEnd(e, targetNode) {
+        handleDragEnd(e, treeNode) {
             this.dragOverNodeKey = '';
-            this.$emit('dragEnd', this.data, targetNode, e);
+            this.$emit('dragEnd', this.data, treeNode, e);
         },
 
         /**
