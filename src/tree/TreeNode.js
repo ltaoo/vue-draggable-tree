@@ -98,7 +98,7 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         onDragEnter(e) {
-            console.log(this.title, 'drag enter', e.target);
+            // console.log(this.title, 'drag enter', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.root.handleNodeEntered(e, this);
@@ -110,7 +110,7 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.handleNodeCrossed(e, this);
         },
         onDragLeave(e) {
-            console.log(this.title, 'drag leave', e.target);
+            // console.log(this.title, 'drag leave', e.target);
             e.stopPropagation();
             this.root.handleNodeLeaved(e, this);
         },
