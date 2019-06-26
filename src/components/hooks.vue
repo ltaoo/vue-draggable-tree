@@ -4,6 +4,10 @@
         v-model="data"
         :afterInsert="afterInsert"
         :template="template"
+        @dragEnd="handleDragEnd"
+        :onDragStart="handleDragStart"
+        :onDragEnter="handleDragEnter"
+        :onDragLeave="handleDragLeave"
         :onDrop="handleDrop"
     ></Tree>
 </template>
@@ -173,10 +177,21 @@ export default {
             }
         },
         deleteNode(node) {
-            // 要找到父节点
             findSourceNodeByKey(this.data, node.key, (item, index, arr) => {
                 arr.splice(index, 1);
             });
+        },
+        handleDragStart({ node }) {
+            console.log('start drag', node.title);
+        },
+        handleDragEnter({ node }) {
+            // change background color
+            node.$refs.selectHandle.style.background = 'red';
+        },
+        handleDragLeave({ node }) {
+            console.log('leave', node.$refs.selectHandle);
+            // recover background color
+            node.$refs.selectHandle.style.background = 'unset';
         },
         handleDrop(res) {
             const { node, dragNode, targetPosition } = res;
@@ -238,6 +253,9 @@ export default {
                     originSourceNodes,
                 );
             }
+        },
+        handleDragEnd() {
+            alert('invoke after drop');
         },
     },
 };

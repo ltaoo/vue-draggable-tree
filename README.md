@@ -138,13 +138,117 @@ onExpand | 展开/收起节点时触发 | function({event, node}) | -
 afterInsert | 在节点插入到指定位置后调用 | function() | -
 template | 自定义节点内容 | VueComponent | -
 
+## 说明
+树组件，分为两部分吧，首先是渲染，其次是渲染后处理拖动。
+
+### render
+渲染其实比较简单，首先我们有「元数据」，我们定义下接口
+
+```typescript
+interface SourceNode {
+    key: string;
+    title: string;
+    children?: Array<SourceNode>;
+    [propName: string]: any;
+}
+```
+
+`key` 需要是唯一值。然后根据这个元数据生成 `vnode`，`Tree` 组件要求 `data` 是数组，所以是生成了 `vnode` 组成的数组。
+再使用 `this.renderTreeNode` 真正地去渲染。
+
+```vue
+// vChildren Array<VNode>，h createElement
+const vChildren = loop(this.data, h, TreeNode);
+<ul
+    class="ant-tree tree"
+    role="tree-node"
+    unselectable="on"
+>
+    {vChildren.map((child, i) => this.renderTreeNode(child, i))}
+</ul>
+```
+
+`VNode` 的接口长什么样呢？
+
+```js
+interface VNode {
+    tag: string;
+    data: Object;
+    children: Array<VNode>;
+    // ...
+}
+```
+
+在 `React` 中，`JSX` 其实是创建 `React Element` 的语法糖，这里也是类似，
+
+参考 [渲染函数 & JSX](https://cn.vuejs.org/v2/guide/render-function.html#JSX)
+
+### drop
+该组件核心概念在于，所有 `TreeNode`，无论层级多深，都是由 `Tree` 这个根组件去管理。每个节点有「位置」属性，类似 0、0-0 这样，个数表示层级，第二位数字表示在该层级的位置，如 '0-1' 表示第一层级的第二个节点。
+
+```js
+- 图书
+    - 经管
+        - 创京东
+        - 参与感
+- 服装 <----- 这个节点就是 0-1
+```
+
+当拖动 `Node` 时，会触发相关事件
+
+- dragstart
+- dragenter
+- dragover
+- drop
+- dragend
+
+`dragstart`，当拖动节点时调用；`dragenter`，当拖动时「被进入」节点触发，举例，拖动「三体」到「经管」这个 `node` 时，触发 `dragenter` 的是「经管」节点，而不是「三体」节点；
+
+并且，当 `enter` 时，这里有一个黑科技，`node` 的实际大小要大于我们所看到的大小。当我们移动到「下边缘」时，实际上是已经移到了内部，只是我们看起来还没有到内部，通过鼠标位置与节点位置的计算，我们人为地划分了「上边缘」、「内部」和「下边缘」。
+
+计算方式是先获取到目标节点距离屏幕顶部的距离(top)、目标节点高度(height)、当前鼠标距屏幕顶部距离(y)，如果
+- 1、y < top 说明鼠标在节点上方
+- 2、y > top + height 说明鼠标在节点下方
+- 3、其他情况说明在节点内部
+
+### 进阶
+
+定制渲染内容
+
+### 需要注意的问题
+
+当在同组间移动时，先移除原先的，再插入，位置计算会有问题。
+
+## 发布流程
+
+如果对组件本身有修改，修改完成后更新 `package.json` 中的 `version` 字段，并且需要打包`example` 和 `dist`，分别运行
+
+```bash
+yarn build
+```
+
+```bash
+yarn dist
+```
+
+然后可以先将新的包发布到 `npm` 上，运行：
+
+```bash
+npm publish
+```
+
+然后将源代码 `push` 到 `github`。
+
+> 如果只修改了 `example`，只需要 `build` 后 `push` 源码即可。
+
 ## todo
 
-- 增加 checkbox
-- 增加 theme 以方便直接在 iview 或者 element 项目中使用
-- examples 展示页用例完善
-- 代码整理
-- 选中状态
-- 增加连接线
-- 增加禁用状态
-- 是否展开控制
+- []优化发布流程
+- [x]代码整理
+- []examples 展示页用例完善
+- []增加 theme 以方便直接在 iview 或者 element 项目中使用
+- []增加 checkbox
+- []选中状态
+- []增加连接线
+- []增加禁用状态
+- []是否展开控制

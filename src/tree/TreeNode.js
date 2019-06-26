@@ -32,10 +32,8 @@ const TreeNode = Vue.component('TreeNode', {
         root: {
             type: Object,
         },
-        vChildren: {
+        children: {
             type: Array,
-        },
-        eventKey: {
         },
         draggable: {
             type: Boolean,
@@ -72,13 +70,12 @@ const TreeNode = Vue.component('TreeNode', {
          * 渲染子节点
          */
         renderChildren() {
-            const { expanded } = this;
+            const { expanded, children } = this;
             let newchildren = null;
-            const vChildren = this.vChildren;
-            if (vChildren && !expanded) {
+            if (children && !expanded) {
                 newchildren = <ul class="ivu-tree-children">
-                    {vChildren.map((vnode, i) =>
-                        this.root.renderTreeNode(vnode, i),
+                    {children.map(formattedSourceNode =>
+                        this.root.renderTreeNode(formattedSourceNode),
                     )}
                 </ul>;
             }
@@ -88,9 +85,10 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.onSelect(this);
         },
         onDragStart(e) {
+            // console.log(this.title, 'drag start');
             e.stopPropagation();
             this.dragNodeHighlight = true;
-            this.root.dragStart(e, this);
+            this.root.handleStartDrag(e, this);
             try {
                 // ie throw error
                 // firefox-need-it
@@ -100,29 +98,34 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         onDragEnter(e) {
+            console.log(this.title, 'drag enter', e.target);
             e.preventDefault();
             e.stopPropagation();
-            this.root.dragEnter(e, this);
+            this.root.handleNodeEntered(e, this);
         },
         onDragOver(e) {
+            // console.log(this.title, 'drag over', e.target);
             e.preventDefault();
             e.stopPropagation();
-            this.root.dragOver(e, this);
+            this.root.handleNodeCrossed(e, this);
         },
         onDragLeave(e) {
+            console.log(this.title, 'drag leave', e.target);
             e.stopPropagation();
-            this.root.dragLeave(e, this);
+            this.root.handleNodeLeaved(e, this);
         },
         onDrop(e) {
+            // console.log(this.title, 'drop', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            this.root.drop(e, this);
+            this.root.handleNodeDropped(e, this);
         },
         onDragEnd(e) {
+            // console.log(this.title, 'drag end', e.target);
             e.stopPropagation();
             this.dragNodeHighlight = false;
-            this.root.dragEnd(e, this);
+            this.root.handleDragEnd(e, this);
         },
         onExpand() {
             const callbackPromise = this.root.expand(this);
@@ -139,29 +142,30 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         switcher() {
-            // const { prefixCls } = this;
             let state = '';
-            if (this.source.children && this.source.children.length > 0) {
-                // 如果是开的
+            if (this.children && this.children.length > 0) {
                 if (this.expanded) {
                     state += ' ivu-tree-arrow-open';
-                } else {
-                    state = '';
                 }
             }
-            // return <span onClick={this.onExpand}>{state}</span>;
-            return (<span
-                        onClick={this.onExpand}
-            class={`ivu-tree-arrow${state}`}>{(this.source.children && this.source.children.length) ? <img style="width: 16px; vertical-align: bottom;" src={arrow} /> : null}</span>);
+            return (
+                <span
+                    onClick={this.onExpand}
+                    class={`ivu-tree-arrow${state}`}
+                >
+                    {
+                        (this.children && this.children.length)
+                        ? <img style="width: 16px; vertical-align: bottom;" src={arrow} />
+                        : null
+                    }
+                </span>
+            );
         },
     },
     render(h) {
-        // 渲染可拖拽部分，标题
+        // render draggable part
         const selectHandle = () => {
-            // const { prefixCls } = this;
             const content = this.title;
-            // const title = <span class={`${prefixCls}-title`}>{content}</span>;
-
             const Component = this.template;
             return h('span', {
                 ref: 'selectHandle',
@@ -173,21 +177,20 @@ const TreeNode = Vue.component('TreeNode', {
                     dragstart: this.onDragStart,
                     dragenter: this.onDragEnter,
                     dragover: this.onDragOver,
+                    dragleave: this.onDragLeave,
                     drop: this.onDrop,
                     dragend: this.onDragEnd,
                 },
-            }, [h(Component, {
-                attrs: {
-                },
-                props: {
-                    title: content,
-                    node: this.source,
-                },
-            }, [])]);
+            }, [
+                h(Component, {
+                    attrs: {},
+                    props: {
+                        title: content,
+                        node: this.source,
+                    },
+                }, []),
+            ]);
         };
-        // 当前位置
-        // const { prefixCls } = this;
-        // let disabledCls = '';
         let dragOverCls = '';
         if (this.disabled) {
             //   disabledCls = `${prefixCls}-treenode-disabled`;
