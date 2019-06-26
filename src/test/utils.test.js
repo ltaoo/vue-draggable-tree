@@ -3,9 +3,11 @@ import {
     formatSourceNodes,
     getDraggingNodesKey,
     findSourceNodeByKey,
+    computeActionNeededParams,
 } from '../tree/utils';
 
 import customSourceNodes from './customData';
+import { TARGET_POSITION_TYPE } from '../tree/constants';
 
 describe('util function', () => {
     it('add extra props to source node', () => {
@@ -283,5 +285,187 @@ describe('util function', () => {
                 title: 'JavaScript高级程序设计',
             },
         ]);
+    });
+
+    describe('compute target action and need to operated source nodes', () => {
+        const sourceNodes = [
+            {
+                key: 0,
+                title: '图书',
+                children: [
+                    {
+                        key: 10,
+                        title: '科技',
+                        children: [
+                            {
+                                key: 101,
+                                title: 'JavaScript权威指南',
+                            },
+                            {
+                                key: 102,
+                                title: 'JavaScript高级程序设计',
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                key: 2,
+                title: '服装',
+            },
+        ];
+        it('inner', () => {
+            const res = computeActionNeededParams(
+                sourceNodes,
+                102,
+                0,
+                TARGET_POSITION_TYPE.CONTENT,
+            );
+            expect(res).toEqual({
+                targetSourceNode: {
+                    key: 0,
+                    title: '图书',
+                    children: [
+                        {
+                            key: 10,
+                            title: '科技',
+                            children: [
+                                {
+                                    key: 101,
+                                    title: 'JavaScript权威指南',
+                                },
+                                {
+                                    key: 102,
+                                    title: 'JavaScript高级程序设计',
+                                },
+                            ],
+                        },
+                    ],
+                },
+                originSourceNode: {
+                    key: 102,
+                    title: 'JavaScript高级程序设计',
+                },
+                originSourceNodeIndex: 1,
+                originSourceNodes: [
+                    {
+                        key: 101,
+                        title: 'JavaScript权威指南',
+                    },
+                    {
+                        key: 102,
+                        title: 'JavaScript高级程序设计',
+                    },
+                ],
+                targetSourceNodes: undefined,
+                targetSourceNodeIndex: undefined,
+            });
+        });
+
+        it('move to top', () => {
+            const res = computeActionNeededParams(
+                sourceNodes,
+                102,
+                0,
+                TARGET_POSITION_TYPE.TOP,
+            );
+            expect(res).toEqual({
+                targetSourceNodes: [
+                    {
+                        key: 0,
+                        title: '图书',
+                        children: [
+                            {
+                                key: 10,
+                                title: '科技',
+                                children: [
+                                    {
+                                        key: 101,
+                                        title: 'JavaScript权威指南',
+                                    },
+                                    {
+                                        key: 102,
+                                        title: 'JavaScript高级程序设计',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        key: 2,
+                        title: '服装',
+                    },
+                ],
+                targetSourceNodeIndex: 0,
+                originSourceNode: {
+                    key: 102,
+                    title: 'JavaScript高级程序设计',
+                },
+                originSourceNodeIndex: 1,
+                originSourceNodes: [
+                    {
+                        key: 101,
+                        title: 'JavaScript权威指南',
+                    },
+                    {
+                        key: 102,
+                        title: 'JavaScript高级程序设计',
+                    },
+                ],
+            });
+        });
+
+        it('move to bottom', () => {
+            const res = computeActionNeededParams(
+                sourceNodes,
+                102,
+                0,
+                TARGET_POSITION_TYPE.TOP,
+            );
+            expect(res).toEqual({
+                targetSourceNodes: [
+                    {
+                        key: 0,
+                        title: '图书',
+                        children: [
+                            {
+                                key: 10,
+                                title: '科技',
+                                children: [
+                                    {
+                                        key: 101,
+                                        title: 'JavaScript权威指南',
+                                    },
+                                    {
+                                        key: 102,
+                                        title: 'JavaScript高级程序设计',
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        key: 2,
+                        title: '服装',
+                    },
+                ],
+                targetSourceNodeIndex: 0,
+                originSourceNode: {
+                    key: 102,
+                    title: 'JavaScript高级程序设计',
+                },
+                originSourceNodeIndex: 1,
+                originSourceNodes: [
+                    {
+                        key: 101,
+                        title: 'JavaScript权威指南',
+                    },
+                    {
+                        key: 102,
+                        title: 'JavaScript高级程序设计',
+                    },
+                ],
+            });
+        });
     });
 });

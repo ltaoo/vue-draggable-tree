@@ -178,9 +178,14 @@ export function calcDropPosition(e, treeNode) {
 }
 
 /**
+ *  interface FindSourceCallback {
+ *      (sourceNode: SourceNode, index: number, arr: Array<SourceNode>): void;
+ *  }
+ */
+/**
  * @param {Array<SourceNode>} data
  * @param {string} key
- * @param {function} callback
+ * @param {FindSourceCallback} callback
  */
 export const findSourceNodeByKey = (sourceNodes, key, callback) => {
     sourceNodes.forEach((sourceNode, index, arr) => {
@@ -194,9 +199,67 @@ export const findSourceNodeByKey = (sourceNodes, key, callback) => {
     });
 };
 
-export function getUpdateInfo() {
+/**
+ * type MoveAction = 'insert' | 'toTop' | 'toBottom';
+ */
+
+/**
+ * get last sourceNodes and move type
+ * @param {Array<SourceNode>} sourceNodes
+ * @param {any} draggingNodeKey
+ * @param {any} targetNodeKey
+ * @param {TargetPostionType} targetPosition
+ * @return {SourceNode | undefined} targetNode
+ * @return {number | undefined} targetNodeIndex
+ * @return {Array<SourceNode> | undefined} targetNodes
+ * @return {SourceNode} originSourceNode
+ * @return {number} originSourceNodeIndex
+ * @return {Array<SourceNode>} originSourceNodes
+ */
+export function computeActionNeededParams(
+    sourceNodes,
+    draggingNodeKey,
+    targetNodeKey,
+    targetPosition,
+) {
+    const isDropToGap = targetPosition !== TARGET_POSITION_TYPE.CONTENT;
+    let draggingSourceNode;
+    let hasSameLevelNodesAsDraggingNode;
+    let draggingNodeIndexAtSameLevelNodes;
+    // first we find the dragging sourceNode
+    findSourceNodeByKey(sourceNodes, draggingNodeKey, (sourceNode, index, arr) => {
+        hasSameLevelNodesAsDraggingNode = arr;
+        draggingNodeIndexAtSameLevelNodes = index;
+        draggingSourceNode = sourceNode;
+    });
+    let hasSameLevelNodesAsTargetNode = null;
+    let targetNodeIndexAtSameLevelNodes;
+    if (!isDropToGap) {
+        let targetSourceNode = null;
+        // place to target content, mean become child of target node
+        const findSourceNodeCallback = (sourceNode) => {
+            targetSourceNode = sourceNode;
+        };
+        findSourceNodeByKey(sourceNodes, targetNodeKey, findSourceNodeCallback);
+        return {
+            targetSourceNode,
+            originSourceNode: draggingSourceNode,
+            originSourceNodeIndex: draggingNodeIndexAtSameLevelNodes,
+            originSourceNodes: hasSameLevelNodesAsDraggingNode,
+        };
+    }
+    // remove source node from same level nodes
+    const findSourceNodeCallback = (_, index, nodes) => {
+        hasSameLevelNodesAsTargetNode = nodes;
+        targetNodeIndexAtSameLevelNodes = index;
+    };
+    findSourceNodeByKey(sourceNodes, targetNodeKey, findSourceNodeCallback);
+
     return {
-        // insertToTop、insertToBottom、insertToContent
-        type: 'insertToTop',
+        targetSourceNodes: hasSameLevelNodesAsTargetNode,
+        targetSourceNodeIndex: targetNodeIndexAtSameLevelNodes,
+        originSourceNode: draggingSourceNode,
+        originSourceNodeIndex: draggingNodeIndexAtSameLevelNodes,
+        originSourceNodes: hasSameLevelNodesAsDraggingNode,
     };
 }

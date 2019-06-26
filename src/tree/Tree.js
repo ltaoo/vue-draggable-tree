@@ -7,9 +7,9 @@ import { TARGET_POSITION_TYPE } from './constants';
 import {
     noop,
     formatSourceNodes,
-    findSourceNodeByKey,
     getDraggingNodesKey,
     calcDropPosition,
+    computeActionNeededParams,
 } from './utils';
 
 import './style.css';
@@ -169,6 +169,7 @@ export default Vue.component('Tree', {
          */
         handleNodeDropped(e, treeNode) {
             const { rckey } = treeNode;
+            const targetPosition = this.dropPosition;
 
             this.dragOverNodeKey = '';
             this.dropNodeKey = rckey;
@@ -183,10 +184,9 @@ export default Vue.component('Tree', {
                 event: e,
                 node: treeNode,
                 draggingNode: this.draggingNode,
-                // draggingNodesKeys: [...this.draggingNodesKeys],
-                // dropPosition: this.dropPosition + Number(posArr[posArr.length - 1]),
             };
-            if (this.dropPosition !== TARGET_POSITION_TYPE.CONTENT) {
+            const isDropToGap = targetPosition !== TARGET_POSITION_TYPE.CONTENT;
+            if (isDropToGap) {
                 res.dropToGap = true;
             }
             if (this.onDrop) {
@@ -198,69 +198,58 @@ export default Vue.component('Tree', {
             const targetNodeKey = rckey;
             // dragging node key
             const draggingNodeKey = this.draggingNode.rckey;
-            const { dropPosition: targetPosition } = this;
             // start change source node
             const sourceNodes = [...this.data];
-            let draggingSourceNode;
-            let hasSomeLevelNodesWithDraggingNode;
-            let draggingNodeIndexAtSomeLevelNodes;
-            // first we find the dragging sourceNode
-            findSourceNodeByKey(sourceNodes, draggingNodeKey, (sourceNode, index, arr) => {
-                hasSomeLevelNodesWithDraggingNode = arr;
-                draggingNodeIndexAtSomeLevelNodes = index;
-                draggingSourceNode = sourceNode;
-            });
-            if (res.dropToGap) {
-                // if place to middle of two node
-                let hasSomeLevelNodesWithDrappedNode;
-                let droppedNodeIndexAtSomeLevelNodes;
-                // second we find target sourceNode
-                // if (this.beforeInsert) {
-                //     findSourceNodeByKey(sourceNodes, droppedNodeKey, (item, index, arr) => {
-                //         ar = arr;
-                //         i = index;
-                //     });
-                //     this.beforeInsert('insert', ar, i, dragObj);
-                //     return;
-                // }
-                // remove source node from same level nodes
-                hasSomeLevelNodesWithDraggingNode.splice(draggingNodeIndexAtSomeLevelNodes, 1);
-                findSourceNodeByKey(sourceNodes, targetNodeKey, (item, index, arr) => {
-                    hasSomeLevelNodesWithDrappedNode = arr;
-                    droppedNodeIndexAtSomeLevelNodes = index;
-                });
-                // if place to target node bottom
-                if (targetPosition === TARGET_POSITION_TYPE.TOP) {
-                    hasSomeLevelNodesWithDrappedNode.splice(
-                        droppedNodeIndexAtSomeLevelNodes + 1,
-                        0,
-                        draggingSourceNode,
-                    );
-                } else {
-                    // place to target node top
-                    hasSomeLevelNodesWithDrappedNode.splice(
-                        droppedNodeIndexAtSomeLevelNodes,
-                        0,
-                        draggingSourceNode,
-                    );
-                }
-            } else {
-                // place to target content, mean become child of target node
-                findSourceNodeByKey(sourceNodes, targetNodeKey, (droppedSourceNode) => {
-                    /* eslint-disable no-param-reassign */
-                    droppedSourceNode.children = droppedSourceNode.children || [];
-                    if (this.beforeInsert) {
-                        this.beforeInner('inner', droppedSourceNode.children, draggingSourceNode);
-                        return;
-                    }
-                    droppedSourceNode.children.push(draggingSourceNode);
-                    hasSomeLevelNodesWithDraggingNode.splice(draggingNodeIndexAtSomeLevelNodes, 1);
-                });
+
+            const {
+                targetSourceNode,
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            } = computeActionNeededParams(
+                sourceNodes,
+                draggingNodeKey,
+                targetNodeKey,
+                targetPosition,
+            );
+            // if (this.beforeInsert) {
+            //     this.beforeInner('inner', droppedSourceNode.children, draggingSourceNode);
+            //     return;
+            // }
+            // insert to content
+            if (targetPosition === TARGET_POSITION_TYPE.TOP) {
+                targetSourceNode.children = targetSourceNode.children || [];
+                targetSourceNode.children.push(originSourceNode);
+                originSourceNodes.splice(
+                    originSourceNodeIndex,
+                    1,
+                );
             }
-            this.$emit('input', sourceNodes);
-            if (this.afterInsert) {
-                this.afterInsert();
+            // move to top
+            if (targetPosition === TARGET_POSITION_TYPE.TOP) {
+                originSourceNodes.splice(originSourceNodeIndex, 1);
+                targetSourceNodes.splice(
+                    targetSourceNodeIndex + 1,
+                    0,
+                    originSourceNode,
+                );
             }
+            // move to bottom
+            if (targetPosition === TARGET_POSITION_TYPE.BOTTOM) {
+                originSourceNodes.splice(originSourceNodeIndex, 1);
+                // place to target node top
+                targetSourceNodes.splice(
+                    targetSourceNodeIndex,
+                    0,
+                    originSourceNode,
+                );
+            }
+            // this.$emit('input', nextSourceNodes);
+            // if (this.afterInsert) {
+            //     this.afterInsert();
+            // }
         },
         dragEnd(e, treeNode) {
             this.dragOverNodeKey = '';
