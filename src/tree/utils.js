@@ -1,3 +1,7 @@
+import {
+    TARGET_POSITION_TYPE,
+} from './constants';
+
 export function noop() {}
 /**
  * type NodeLevel = string; // like 0、0-0、0-1、0-0-0
@@ -146,9 +150,13 @@ export function getOffset(ele) {
 }
 
 /**
+ * type TargetPositionType = -1 | 0 | 1;
+ */
+
+/**
  * @param {Event} e
- * @param {VueComponent} treeNode 鼠标移动过程中进入的节点
- * @return {Number}
+ * @param {VueComponent} treeNode - entered node
+ * @return {TargetPostionType} -1|1|0
  */
 export function calcDropPosition(e, treeNode) {
     const { selectHandle } = treeNode.$refs;
@@ -157,16 +165,16 @@ export function calcDropPosition(e, treeNode) {
     const pageY = e.pageY;
     // TODO: remove hard code
     const gapHeight = 2;
-    // 如果是靠近下边缘，就返回 1
+    // if move to node top
     if (pageY > (offsetTop + offsetHeight) - gapHeight) {
-        return 1;
+        return TARGET_POSITION_TYPE.TOP;
     }
-    // 如果是靠近上边缘，就返回 -1
+    // if move to node bottom
     if (pageY < offsetTop + gapHeight) {
-        return -1;
+        return TARGET_POSITION_TYPE.BOTTOM;
     }
-    // 否则就返回 0，表示在节点内部
-    return 0;
+    // move to node content
+    return TARGET_POSITION_TYPE.CONTENT;
 }
 
 /**

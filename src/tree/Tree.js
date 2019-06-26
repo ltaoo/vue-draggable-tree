@@ -3,6 +3,7 @@ import Vue from 'vue';
 import TreeNode from './TreeNode';
 import iViewTemplate from './iviewTemplate';
 
+import { TARGET_POSITION_TYPE } from './constants';
 import {
     noop,
     formatSourceNodes,
@@ -71,7 +72,7 @@ export default Vue.component('Tree', {
     },
     data() {
         this.dropNodeKey = '';
-        this.dragNodesKeys = '';
+        this.draggingNodesKeys = [];
 
         return {
             dragOverNodeKey: '',
@@ -133,7 +134,7 @@ export default Vue.component('Tree', {
          */
         handleStartDrag(e, treeNode) {
             this.draggingNode = treeNode;
-            this.dragNodesKeys = getDraggingNodesKey(treeNode);
+            this.draggingNodesKeys = getDraggingNodesKey(treeNode);
             this.onDragStart({
                 event: e,
                 node: treeNode,
@@ -167,25 +168,25 @@ export default Vue.component('Tree', {
          * @param {VueComponent} treeNode - dropped node
          */
         handleNodeDropped(e, treeNode) {
-            const { rckey, pos } = treeNode;
+            const { rckey } = treeNode;
 
             this.dragOverNodeKey = '';
             this.dropNodeKey = rckey;
-            // if drop node to its child
-            if (this.dragNodesKeys.includes(rckey)) {
+            // if drop node to its children node
+            if (this.draggingNodesKeys.includes(rckey)) {
                 console.error('Can not drop to dragNode(include it\'s children node)');
                 return;
             }
 
-            const posArr = pos.split('-');
+            // const posArr = pos.split('-');
             const res = {
                 event: e,
                 node: treeNode,
-                dragNode: this.draggingNode,
-                dragNodesKeys: [...this.dragNodesKeys],
-                dropPosition: this.dropPosition + Number(posArr[posArr.length - 1]),
+                draggingNode: this.draggingNode,
+                // draggingNodesKeys: [...this.draggingNodesKeys],
+                // dropPosition: this.dropPosition + Number(posArr[posArr.length - 1]),
             };
-            if (this.dropPosition !== 0) {
+            if (this.dropPosition !== TARGET_POSITION_TYPE.CONTENT) {
                 res.dropToGap = true;
             }
             if (this.onDrop) {
@@ -194,12 +195,10 @@ export default Vue.component('Tree', {
             }
 
             // target node key
-            const droppedNodeKey = rckey;
+            const targetNodeKey = rckey;
             // dragging node key
             const draggingNodeKey = this.draggingNode.rckey;
-            const dropPos = pos.split('-');
-            const dropPosition =
-                res.dropPosition - Number(dropPos[dropPos.length - 1]);
+            const { dropPosition: targetPosition } = this;
             // start change source node
             const sourceNodes = [...this.data];
             let draggingSourceNode;
@@ -226,12 +225,12 @@ export default Vue.component('Tree', {
                 // }
                 // remove source node from same level nodes
                 hasSomeLevelNodesWithDraggingNode.splice(draggingNodeIndexAtSomeLevelNodes, 1);
-                findSourceNodeByKey(sourceNodes, droppedNodeKey, (item, index, arr) => {
+                findSourceNodeByKey(sourceNodes, targetNodeKey, (item, index, arr) => {
                     hasSomeLevelNodesWithDrappedNode = arr;
                     droppedNodeIndexAtSomeLevelNodes = index;
                 });
                 // if place to target node bottom
-                if (dropPosition === 1) {
+                if (targetPosition === TARGET_POSITION_TYPE.TOP) {
                     hasSomeLevelNodesWithDrappedNode.splice(
                         droppedNodeIndexAtSomeLevelNodes + 1,
                         0,
@@ -247,7 +246,7 @@ export default Vue.component('Tree', {
                 }
             } else {
                 // place to target content, mean become child of target node
-                findSourceNodeByKey(sourceNodes, droppedNodeKey, (droppedSourceNode) => {
+                findSourceNodeByKey(sourceNodes, targetNodeKey, (droppedSourceNode) => {
                     /* eslint-disable no-param-reassign */
                     droppedSourceNode.children = droppedSourceNode.children || [];
                     if (this.beforeInsert) {
