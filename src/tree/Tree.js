@@ -209,12 +209,16 @@ export default Vue.component('Tree', {
                 targetNodeKey,
                 targetPosition,
             );
-            if (this.beforeInsert) {
-                this.beforeInner('inner', targetSourceNode.children, originSourceNode);
-                return;
-            }
             // insert to content
             if (targetPosition === TARGET_POSITION_TYPE.CONTENT) {
+                if (this.beforeInner) {
+                    this.beforeInner(
+                        'inner',
+                        targetSourceNode.children,
+                        originSourceNode,
+                    );
+                    return;
+                }
                 targetSourceNode.children = targetSourceNode.children || [];
                 targetSourceNode.children.push(originSourceNode);
                 originSourceNodes.splice(
@@ -224,6 +228,15 @@ export default Vue.component('Tree', {
             }
             // move to top
             if (targetPosition === TARGET_POSITION_TYPE.TOP) {
+                if (this.beforeInsert) {
+                    this.beforeInsert(
+                        'insert',
+                        targetSourceNodes,
+                        targetSourceNodeIndex,
+                        originSourceNode,
+                    );
+                    return;
+                }
                 originSourceNodes.splice(originSourceNodeIndex, 1);
                 targetSourceNodes.splice(
                     targetSourceNodeIndex + 1,
