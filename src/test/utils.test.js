@@ -4,6 +4,8 @@ import {
     getDraggingNodesKey,
     findSourceNodeByKey,
     computeMoveNeededParams,
+    insertToBottom,
+    insertToTop,
 } from '../tree/utils';
 
 import customSourceNodes from './customData';
@@ -466,6 +468,223 @@ describe('util function', () => {
                     },
                 ],
             });
+        });
+    });
+
+    describe('sample case of move to top', () => {
+        it('case 1, same source and move to leftmost', () => {
+            const targetSourceNodeIndex = 0;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'd';
+            const originSourceNodeIndex = 3;
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['d', 'a', 'b', 'c']);
+        });
+        it('case 2, same source and rightmost', () => {
+            const targetSourceNodeIndex = 3;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'b';
+            const originSourceNodeIndex = 1;
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['a', 'c', 'b', 'd']);
+        });
+        it('case 3, same source and middle', () => {
+            const targetSourceNodeIndex = 2;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 0;
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'a', 'c', 'd']);
+        });
+
+        it('case 4, different source and left most', () => {
+            const targetSourceNodeIndex = 0;
+            const targetSourceNodes = ['a', 'b', 'd', 'e'];
+            const originSourceNode = 'c';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['f', 'c'];
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['c', 'a', 'b', 'd', 'e']);
+            expect(res.originSourceNodes).toEqual(['f']);
+        });
+
+        it('case 5, different source and left most', () => {
+            const targetSourceNodeIndex = 0;
+            const targetSourceNodes = ['a', 'b', 'd', 'e'];
+            const originSourceNode = 'c';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['f', 'c'];
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['c', 'a', 'b', 'd', 'e']);
+            expect(res.originSourceNodes).toEqual(['f']);
+        });
+        it('case 6, different source and middle', () => {
+            const targetSourceNodeIndex = 1;
+            const targetSourceNodes = ['a', 'b', 'd', 'e'];
+            const originSourceNode = 'c';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['f', 'c'];
+
+            const res = insertToTop(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['a', 'c', 'b', 'd', 'e']);
+            expect(res.originSourceNodes).toEqual(['f']);
+        });
+    });
+
+    describe('sample case of move to bottom', () => {
+        it('case 1, same source and leftmost', () => {
+            const targetSourceNodeIndex = 0;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'c';
+            const originSourceNodeIndex = 2;
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['a', 'c', 'b', 'd']);
+        });
+
+        it('case 2, same source and rightmost', () => {
+            const targetSourceNodeIndex = 3;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 0;
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'c', 'd', 'a']);
+        });
+
+        it('case 3, same source and middle', () => {
+            const targetSourceNodeIndex = 1;
+            const targetSourceNodes = ['a', 'b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 0;
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                targetSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'a', 'c', 'd']);
+        });
+
+        it('case 4, different source and leftmost', () => {
+            const targetSourceNodeIndex = 0;
+            const targetSourceNodes = ['b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['e', 'a'];
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'a', 'c', 'd']);
+            expect(res.originSourceNodes).toEqual(['e']);
+        });
+
+        it('case 5, different source and rightmost', () => {
+            const targetSourceNodeIndex = 2;
+            const targetSourceNodes = ['b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['e', 'a'];
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'c', 'd', 'a']);
+            expect(res.originSourceNodes).toEqual(['e']);
+        });
+
+        it('case 6, different source and middle', () => {
+            const targetSourceNodeIndex = 1;
+            const targetSourceNodes = ['b', 'c', 'd'];
+            const originSourceNode = 'a';
+            const originSourceNodeIndex = 1;
+            const originSourceNodes = ['e', 'a'];
+
+            const res = insertToBottom(
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            );
+
+            expect(res.targetSourceNodes).toEqual(['b', 'c', 'a', 'd']);
+            expect(res.originSourceNodes).toEqual(['e']);
         });
     });
 });

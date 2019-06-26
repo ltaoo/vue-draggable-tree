@@ -35,8 +35,6 @@ const TreeNode = Vue.component('TreeNode', {
         children: {
             type: Array,
         },
-        eventKey: {
-        },
         draggable: {
             type: Boolean,
             default: false,
@@ -191,7 +189,6 @@ const TreeNode = Vue.component('TreeNode', {
                 }, []),
             ]);
         };
-        // 当前位置
         let dragOverCls = '';
         if (this.disabled) {
             //   disabledCls = `${prefixCls}-treenode-disabled`;

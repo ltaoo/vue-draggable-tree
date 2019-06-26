@@ -8,13 +8,14 @@ export function noop() {}
  * interface SourceNode {
  *  key: string;
  *  title: string;
- *  children: Array<SourceNode>;
+ *  children?: Array<SourceNode>;
  * }
  * interface FormattedSourceNode {
- *  id: number;
  *  key: string;
- *  level: NodeLevel;
+ *  title: string;
+ *  pos: string;
  *  children?: Array<FormattedSourceNode>;
+ *  [propsName: string]: any;
  * }
  */
 /**
@@ -168,13 +169,13 @@ export function calcDropPosition(e, treeNode) {
     const pageY = e.pageY;
     // TODO: remove hard code
     const gapHeight = 2;
-    // if move to node top
-    if (pageY > (offsetTop + offsetHeight) - gapHeight) {
-        return TARGET_POSITION_TYPE.TOP;
-    }
     // if move to node bottom
-    if (pageY < offsetTop + gapHeight) {
+    if (pageY > ((offsetTop + offsetHeight) - gapHeight)) {
         return TARGET_POSITION_TYPE.BOTTOM;
+    }
+    // if move to node top
+    if (pageY < offsetTop + gapHeight) {
+        return TARGET_POSITION_TYPE.TOP;
     }
     // move to node content
     return TARGET_POSITION_TYPE.CONTENT;
@@ -260,5 +261,80 @@ export function computeMoveNeededParams(
         originSourceNode: draggingSourceNode,
         originSourceNodeIndex: draggingNodeIndexAtSameLevelNodes,
         originSourceNodes: hasSameLevelNodesAsDraggingNode,
+    };
+}
+
+/**
+ *
+ * @param {number} targetSourceNodeIndex
+ * @param {Array<SourceNode>} targetSourceNodes
+ * @param {SourceNode} originSourceNode
+ * @param {number} originSourceNodeIndex
+ * @param {Array<SourceNode>} originSourceNodes
+ */
+export function insertToTop(
+    targetSourceNodeIndex,
+    targetSourceNodes,
+    originSourceNode,
+    originSourceNodeIndex,
+    originSourceNodes,
+) {
+    if (
+        originSourceNodes !== targetSourceNodes
+        || originSourceNodeIndex > targetSourceNodeIndex
+    ) {
+        originSourceNodes.splice(originSourceNodeIndex, 1);
+        targetSourceNodes.splice(
+            targetSourceNodeIndex,
+            0,
+            originSourceNode,
+        );
+        return {
+            targetSourceNodes,
+            originSourceNodes,
+        };
+    }
+    targetSourceNodes.splice(
+        targetSourceNodeIndex,
+        0,
+        originSourceNode,
+    );
+    originSourceNodes.splice(originSourceNodeIndex, 1);
+    return {
+        targetSourceNodes,
+        originSourceNodes,
+    };
+}
+
+/**
+ *
+ * @param {number} targetSourceNodeIndex
+ * @param {Array<SourceNode>} targetSourceNodes
+ * @param {SourceNode} originSourceNode
+ * @param {number} originSourceNodeIndex
+ * @param {Array<SourceNode>} originSourceNodes
+ */
+export function insertToBottom(
+    targetSourceNodeIndex,
+    targetSourceNodes,
+    originSourceNode,
+    originSourceNodeIndex,
+    originSourceNodes,
+) {
+    let newTargetSourceNodeIndex = targetSourceNodeIndex + 1;
+    if (originSourceNodes === targetSourceNodes) {
+        if (targetSourceNodeIndex > originSourceNodeIndex) {
+            newTargetSourceNodeIndex = targetSourceNodeIndex;
+        }
+    }
+    originSourceNodes.splice(originSourceNodeIndex, 1);
+    targetSourceNodes.splice(
+        newTargetSourceNodeIndex,
+        0,
+        originSourceNode,
+    );
+    return {
+        targetSourceNodes,
+        originSourceNodes,
     };
 }

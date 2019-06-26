@@ -13,13 +13,18 @@ import Vue from 'vue';
 import Tree from '../tree';
 
 import {
-    sourceLoop,
+    findSourceNodeByKey,
+    computeMoveNeededParams,
 } from '../tree/utils';
+import {
+    TARGET_POSITION_TYPE,
+} from '../tree/constants';
 
 const EXAMPLE_DATA = [
     {
         key: '0',
         title: '女装',
+        type: 'clother',
         children: [
             {
                 key: '0-1',
@@ -106,21 +111,31 @@ export default {
     },
     data() {
         // 保存 this
-        const rootThis = this;
+        const self = this;
+        // new node template
         this.template = Vue.component('custom-tree-node', {
             props: ['title', 'node'],
             render() {
                 // 这个组件接收 title 和 node，node 就是真实渲染节点的那个 obj
                 const btnStyle = 'margin-left: 10px; cursor: pointer;';
-                const addBtn = <span
-                    style={btnStyle}
-                    onClick={rootThis.addNode.bind(rootThis, this.node)}>+</span>;
-                const editBtn = <span
-                    style={btnStyle}
-                    onClick={rootThis.editNode.bind(rootThis, this.node)}>#</span>;
-                const deleteBtn = <span
-                    style={btnStyle}
-                    onClick={rootThis.deleteNode.bind(rootThis, this.node)}>-</span>;
+                const addBtn = (
+                    <span
+                        style={btnStyle}
+                        onClick={self.addNode.bind(self, this.node)}
+                    >+</span>
+                );
+                const editBtn = (
+                    <span
+                        style={btnStyle}
+                        onClick={self.editNode.bind(self, this.node)}
+                    >#</span>
+                );
+                const deleteBtn = (
+                    <span
+                        style={btnStyle}
+                        onClick={self.deleteNode.bind(self, this.node)}
+                    >-</span>
+                );
                 const titleStyle = this.node.highlight ? 'color: red;' : '';
                 return (
                     <div>
@@ -170,22 +185,17 @@ export default {
          */
         deleteNode(node) {
             // 要找到父节点
-            sourceLoop(this.data, node.key, (item, index, arr) => {
+            findSourceNodeByKey(this.data, node.key, (item, index, arr) => {
                 arr.splice(index, 1);
             });
         },
         handleDrop(res) {
-            const {
-                node,
-                dragNode,
-            } = res;
+            const { node, dragNode, targetPosition } = res;
+            console.log(node);
             // drop target
-            const dropKey = node.eventKey;
+            const dropKey = node.rckey;
             // drag node
-            const dragKey = dragNode.eventKey;
-            const dropPos = node.pos.split('-');
-            const dropPosition =
-                res.dropPosition - Number(dropPos[dropPos.length - 1]);
+            const dragKey = dragNode.rckey;
             /**
              * We may have some situations to deal with.
              * For example,
@@ -196,47 +206,64 @@ export default {
                 alert(`${dragNode.source.title} can't put in ${node.source.type}`);
                 return;
             }
-            // 浅拷贝
-            const data = [...this.data];
-            let dragObj;
-            let hasDragObjArr;
-            let deleteIndex;
-            sourceLoop(data, dragKey, (item, index, arr) => {
-                // 保存正在拖拽的节点所在 children
-                hasDragObjArr = arr;
-                deleteIndex = index;
-                hasDragObjArr.splice(index, 1);
-                dragObj = item;
-            });
-            // 然后处理应该放到哪里
-            if (res.dropToGap) {
-                // 如果是在两个节点之间
-                let ar;
-                let i;
-                // 寻找放置的那个节点对应的数组，保存为 ar
-                sourceLoop(data, dropKey, (item, index, arr) => {
-                    ar = arr;
-                    i = index;
-                });
-                // 如果是放到下边缘
-                if (dropPosition === 1) {
-                    ar.splice(i + 1, 0, dragObj);
-                } else {
-                    ar.splice(i, 0, dragObj);
-                }
-            } else {
-                // 成为子节点
-                sourceLoop(data, dropKey, (item) => {
-                    /* eslint-disable */
-                    item.children = item.children || [];
-                    if (this.beforeInsert) {
-                        this.beforeInner('inner', item.children, dragObj);
-                        return;
-                    }
-                    // where to insert 示例添加到尾部，可以是随意位置
-                    item.children.push(dragObj);
-                    hasDragObjArr.splice(deleteIndex, 1);
-                });
+
+            const targetNodeKey = dropKey;
+            const draggingNodeKey = dragKey;
+            const sourceNodes = [...this.data];
+            const {
+                targetSourceNode,
+                targetSourceNodeIndex,
+                targetSourceNodes,
+                originSourceNode,
+                originSourceNodeIndex,
+                originSourceNodes,
+            } = computeMoveNeededParams(
+                sourceNodes,
+                draggingNodeKey,
+                targetNodeKey,
+                targetPosition,
+            );
+            console.log(targetPosition);
+            // console.log(originSourceNode.title, targetPosition, targetSourceNode.title);
+            // insert to content
+            if (targetPosition === TARGET_POSITION_TYPE.CONTENT) {
+                targetSourceNode.children = targetSourceNode.children || [];
+                targetSourceNode.children.push(originSourceNode);
+                originSourceNodes.splice(
+                    originSourceNodeIndex,
+                    1,
+                );
+            }
+            // move to top
+            if (targetPosition === TARGET_POSITION_TYPE.TOP) {
+                console.log(
+                    originSourceNode.title,
+                    targetPosition,
+                    targetSourceNodes,
+                    targetSourceNodeIndex,
+                );
+                originSourceNodes.splice(originSourceNodeIndex, 1);
+                targetSourceNodes.splice(
+                    targetSourceNodeIndex + 1,
+                    0,
+                    originSourceNode,
+                );
+            }
+            // move to bottom
+            if (targetPosition === TARGET_POSITION_TYPE.BOTTOM) {
+                console.log(
+                    originSourceNode.title,
+                    targetPosition,
+                    targetSourceNodes,
+                    targetSourceNodeIndex,
+                );
+                originSourceNodes.splice(originSourceNodeIndex, 1);
+                // place to target node top
+                targetSourceNodes.splice(
+                    targetSourceNodeIndex,
+                    0,
+                    originSourceNode,
+                );
             }
         },
     },

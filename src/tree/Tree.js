@@ -10,6 +10,8 @@ import {
     getDraggingNodesKey,
     calcDropPosition,
     computeMoveNeededParams,
+    insertToTop,
+    insertToBottom,
 } from './utils';
 
 import './style.css';
@@ -71,7 +73,6 @@ export default Vue.component('Tree', {
         },
     },
     data() {
-        this.dropNodeKey = '';
         this.draggingNodesKeys = [];
 
         return {
@@ -99,12 +100,20 @@ export default Vue.component('Tree', {
                 pos,
                 children,
             } = formattedSourceNode;
-            // the position of node
 
-            // the flag show node status(at node top or bottom) when drag
-            const dragOverGapTop = this.dragOverNodeKey === key && this.dropPosition === -1;
-            const dragOverGapBottom = this.dragOverNodeKey === key && this.dropPosition === 1;
-            const dragOver = this.dragOverNodeKey === key && this.dropPosition === 0;
+            // the flag show node status(at node top or bottom) when dragging
+            const dragOverGapTop = (
+                this.dragOverNodeKey === key
+                && this.dropPosition === TARGET_POSITION_TYPE.TOP
+            );
+            const dragOverGapBottom = (
+                this.dragOverNodeKey === key
+                && this.dropPosition === TARGET_POSITION_TYPE.BOTTOM
+            );
+            const dragOver = (
+                this.dragOverNodeKey === key
+                && this.dropPosition === TARGET_POSITION_TYPE.CONTENT
+            );
 
             // is expend
             const expanded = this.expandedKeys.indexOf(key) !== -1;
@@ -117,13 +126,13 @@ export default Vue.component('Tree', {
                     root: this,
                     pos,
                     children,
-                    eventKey: key,
                     dragOver,
                     dragOverGapTop,
                     dragOverGapBottom,
                     template: this.template,
                     draggable: this.draggable,
                     expanded,
+                    source: formattedSourceNode,
                 },
             });
         },
@@ -152,7 +161,7 @@ export default Vue.component('Tree', {
                 return;
             }
 
-            this.dragOverNodeKey = treeNode.eventKey;
+            this.dragOverNodeKey = treeNode.rckey;
             this.dropPosition = dropPosition;
         },
         handleNodeCrossed(e, treeNode) {
@@ -171,7 +180,6 @@ export default Vue.component('Tree', {
             const targetPosition = this.dropPosition;
 
             this.dragOverNodeKey = '';
-            this.dropNodeKey = rckey;
             // if drop node to its children node
             if (this.draggingNodesKeys.includes(rckey)) {
                 console.error('Can not drop to dragNode(include it\'s children node)');
@@ -181,7 +189,8 @@ export default Vue.component('Tree', {
             const res = {
                 event: e,
                 node: treeNode,
-                draggingNode: this.draggingNode,
+                dragNode: this.draggingNode,
+                targetPosition,
             };
             const isDropToGap = targetPosition !== TARGET_POSITION_TYPE.CONTENT;
             if (isDropToGap) {
@@ -226,32 +235,33 @@ export default Vue.component('Tree', {
                     1,
                 );
             }
+            if (this.beforeInsert) {
+                this.beforeInsert(
+                    'insert',
+                    targetSourceNodes,
+                    targetSourceNodeIndex,
+                    originSourceNode,
+                );
+                return;
+            }
             // move to top
             if (targetPosition === TARGET_POSITION_TYPE.TOP) {
-                if (this.beforeInsert) {
-                    this.beforeInsert(
-                        'insert',
-                        targetSourceNodes,
-                        targetSourceNodeIndex,
-                        originSourceNode,
-                    );
-                    return;
-                }
-                originSourceNodes.splice(originSourceNodeIndex, 1);
-                targetSourceNodes.splice(
-                    targetSourceNodeIndex + 1,
-                    0,
+                insertToTop(
+                    targetSourceNodeIndex,
+                    targetSourceNodes,
                     originSourceNode,
+                    originSourceNodeIndex,
+                    originSourceNodes,
                 );
             }
             // move to bottom
             if (targetPosition === TARGET_POSITION_TYPE.BOTTOM) {
-                originSourceNodes.splice(originSourceNodeIndex, 1);
-                // place to target node top
-                targetSourceNodes.splice(
+                insertToBottom(
                     targetSourceNodeIndex,
-                    0,
+                    targetSourceNodes,
                     originSourceNode,
+                    originSourceNodeIndex,
+                    originSourceNodes,
                 );
             }
             this.$emit('input', sourceNodes);
@@ -271,12 +281,12 @@ export default Vue.component('Tree', {
         expand(treeNode) {
             const expanded = !treeNode.expanded;
             const expandedKeys = [...this.expandedKeys];
-            const eventKey = treeNode.eventKey;
-            const index = expandedKeys.indexOf(eventKey);
+            const rckey = treeNode.rckey;
+            const index = expandedKeys.indexOf(rckey);
             // 如果点击的节点要展开，但是不在表示已经展开的 expandKeys 数组中
             if (expanded && index === -1) {
                 // 就加入该数组，在重新渲染的时候，就会展开了
-                expandedKeys.push(eventKey);
+                expandedKeys.push(rckey);
             } else if (!expanded && index > -1) {
                 expandedKeys.splice(index, 1);
             }

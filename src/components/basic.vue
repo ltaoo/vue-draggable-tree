@@ -2,8 +2,6 @@
     <Tree
         draggable
         v-model="data"
-        :afterInsert="afterInsert"
-        @dragEnd="handleDragEnd"
     ></Tree>
 </template>
 
