@@ -87,7 +87,7 @@ const TreeNode = Vue.component('TreeNode', {
             this.root.onSelect(this);
         },
         onDragStart(e) {
-            console.log(this.title, 'drag start');
+            // console.log(this.title, 'drag start');
             e.stopPropagation();
             this.dragNodeHighlight = true;
             this.root.handleStartDrag(e, this);
@@ -100,24 +100,24 @@ const TreeNode = Vue.component('TreeNode', {
             }
         },
         onDragEnter(e) {
-            console.log(this.title, 'drag enter', e.target);
+            // console.log(this.title, 'drag enter', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.root.handleNodeEntered(e, this);
         },
         onDragOver(e) {
-            console.log(this.title, 'drag over', e.target);
+            // console.log(this.title, 'drag over', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.root.handleNodeCrossed(e, this);
         },
         onDragLeave(e) {
-            console.log(this.title, 'drag leave', e.target);
+            // console.log(this.title, 'drag leave', e.target);
             e.stopPropagation();
             this.root.handleNodeLeaved(e, this);
         },
         onDrop(e) {
-            console.log(this.title, 'drop', e.target);
+            // console.log(this.title, 'drop', e.target);
             e.preventDefault();
             e.stopPropagation();
             this.dragNodeHighlight = false;

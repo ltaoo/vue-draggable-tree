@@ -156,7 +156,10 @@ export function getOffset(ele) {
 /**
  * @param {Event} e
  * @param {VueComponent} treeNode - entered node
- * @return {TargetPostionType} -1|1|0
+ * @return {TargetPostionType}
+ * TARGET_POSITION_TYPE.BOTTOM
+ * |TARGET_POSITION_TYPE.CONTENT
+ * |TARGET_POSITION_TYPE.TOP
  */
 export function calcDropPosition(e, treeNode) {
     const { selectHandle } = treeNode.$refs;
@@ -200,10 +203,6 @@ export const findSourceNodeByKey = (sourceNodes, key, callback) => {
 };
 
 /**
- * type MoveAction = 'insert' | 'toTop' | 'toBottom';
- */
-
-/**
  * get last sourceNodes and move type
  * @param {Array<SourceNode>} sourceNodes
  * @param {any} draggingNodeKey
@@ -216,7 +215,7 @@ export const findSourceNodeByKey = (sourceNodes, key, callback) => {
  * @return {number} originSourceNodeIndex
  * @return {Array<SourceNode>} originSourceNodes
  */
-export function computeActionNeededParams(
+export function computeMoveNeededParams(
     sourceNodes,
     draggingNodeKey,
     targetNodeKey,

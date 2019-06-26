@@ -9,7 +9,7 @@ import {
     formatSourceNodes,
     getDraggingNodesKey,
     calcDropPosition,
-    computeActionNeededParams,
+    computeMoveNeededParams,
 } from './utils';
 
 import './style.css';
@@ -76,7 +76,6 @@ export default Vue.component('Tree', {
 
         return {
             dragOverNodeKey: '',
-            // 拖动时的位置
             dropPosition: '',
             expandedKeys: [],
         };
@@ -179,7 +178,6 @@ export default Vue.component('Tree', {
                 return;
             }
 
-            // const posArr = pos.split('-');
             const res = {
                 event: e,
                 node: treeNode,
@@ -194,11 +192,8 @@ export default Vue.component('Tree', {
                 return;
             }
 
-            // target node key
             const targetNodeKey = rckey;
-            // dragging node key
             const draggingNodeKey = this.draggingNode.rckey;
-            // start change source node
             const sourceNodes = [...this.data];
 
             const {
@@ -208,18 +203,18 @@ export default Vue.component('Tree', {
                 originSourceNode,
                 originSourceNodeIndex,
                 originSourceNodes,
-            } = computeActionNeededParams(
+            } = computeMoveNeededParams(
                 sourceNodes,
                 draggingNodeKey,
                 targetNodeKey,
                 targetPosition,
             );
-            // if (this.beforeInsert) {
-            //     this.beforeInner('inner', droppedSourceNode.children, draggingSourceNode);
-            //     return;
-            // }
+            if (this.beforeInsert) {
+                this.beforeInner('inner', targetSourceNode.children, originSourceNode);
+                return;
+            }
             // insert to content
-            if (targetPosition === TARGET_POSITION_TYPE.TOP) {
+            if (targetPosition === TARGET_POSITION_TYPE.CONTENT) {
                 targetSourceNode.children = targetSourceNode.children || [];
                 targetSourceNode.children.push(originSourceNode);
                 originSourceNodes.splice(
@@ -246,14 +241,14 @@ export default Vue.component('Tree', {
                     originSourceNode,
                 );
             }
-            // this.$emit('input', nextSourceNodes);
-            // if (this.afterInsert) {
-            //     this.afterInsert();
-            // }
+            this.$emit('input', sourceNodes);
+            if (this.afterInsert) {
+                this.afterInsert();
+            }
         },
-        dragEnd(e, treeNode) {
+        dragEnd(e, targetNode) {
             this.dragOverNodeKey = '';
-            this.$emit('dragEnd', this.data, treeNode, e);
+            this.$emit('dragEnd', this.data, targetNode, e);
         },
 
         /**

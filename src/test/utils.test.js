@@ -3,7 +3,7 @@ import {
     formatSourceNodes,
     getDraggingNodesKey,
     findSourceNodeByKey,
-    computeActionNeededParams,
+    computeMoveNeededParams,
 } from '../tree/utils';
 
 import customSourceNodes from './customData';
@@ -315,7 +315,7 @@ describe('util function', () => {
             },
         ];
         it('inner', () => {
-            const res = computeActionNeededParams(
+            const res = computeMoveNeededParams(
                 sourceNodes,
                 102,
                 0,
@@ -363,7 +363,7 @@ describe('util function', () => {
         });
 
         it('move to top', () => {
-            const res = computeActionNeededParams(
+            const res = computeMoveNeededParams(
                 sourceNodes,
                 102,
                 0,
@@ -416,7 +416,7 @@ describe('util function', () => {
         });
 
         it('move to bottom', () => {
-            const res = computeActionNeededParams(
+            const res = computeMoveNeededParams(
                 sourceNodes,
                 102,
                 0,
