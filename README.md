@@ -221,13 +221,34 @@ interface VNode {
 
 ## 发布流程
 
+如果对组件本身有修改，修改完成后更新 `package.json` 中的 `version` 字段，并且需要打包`example` 和 `dist`，分别运行
+
+```bash
+yarn build
+```
+
+```bash
+yarn dist
+```
+
+然后可以先将新的包发布到 `npm` 上，运行：
+
+```bash
+npm publish
+```
+
+然后将源代码 `push` 到 `github`。
+
+> 如果只修改了 `example`，只需要 `build` 后 `push` 源码即可。
+
 ## todo
 
-[]增加 checkbox
-[]增加 theme 以方便直接在 iview 或者 element 项目中使用
-[]examples 展示页用例完善
-[x]代码整理
-[]选中状态
-[]增加连接线
-[]增加禁用状态
-[]是否展开控制
+- []优化发布流程
+- [x]代码整理
+- []examples 展示页用例完善
+- []增加 theme 以方便直接在 iview 或者 element 项目中使用
+- []增加 checkbox
+- []选中状态
+- []增加连接线
+- []增加禁用状态
+- []是否展开控制

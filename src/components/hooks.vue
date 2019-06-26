@@ -5,6 +5,7 @@
         :afterInsert="afterInsert"
         :template="template"
         @dragEnd="handleDragEnd"
+        :onDragStart="handleDragStart"
         :onDragEnter="handleDragEnter"
         :onDragLeave="handleDragLeave"
         :onDrop="handleDrop"
@@ -179,6 +180,9 @@ export default {
             findSourceNodeByKey(this.data, node.key, (item, index, arr) => {
                 arr.splice(index, 1);
             });
+        },
+        handleDragStart({ node }) {
+            console.log('start drag', node.title);
         },
         handleDragEnter({ node }) {
             // change background color

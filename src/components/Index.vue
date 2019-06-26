@@ -21,7 +21,7 @@
             <div>
                 <Hooks />
             </div>
-            <a href="https://github.com/ltaoo/vue-draggable-tree/blob/master/examples/custom.vue">代码</a>
+            <a href="https://github.com/ltaoo/vue-draggable-tree/blob/master/examples/hooks.vue">代码</a>
         </div>
     </div>
 </template>
